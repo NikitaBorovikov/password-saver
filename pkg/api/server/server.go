@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net/http"
 	"password-saver/pkg/api/handlers"
 	"password-saver/pkg/api/routes"
@@ -36,8 +37,12 @@ func NewServer(handlers handlers.Handlers, cfg *config.Config) *server {
 func (s *server) Start() {
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil {
-			logrus.Fatalf("Server failed to start: %s", err.Error())
+			logrus.Fatalf("Server failed to start: %v", err)
 		}
 	}()
 	logrus.Printf("Server started on port %s", s.cfg.Http.Port)
+}
+
+func (s *server) Shutdown(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
 }
