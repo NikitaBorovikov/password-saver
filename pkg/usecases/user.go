@@ -19,7 +19,7 @@ func (uc *UserUseCase) Registration(u *model.User) error {
 	return nil
 }
 
-func (uc *UserUseCase) LogIn(q *dto.RegRequest) (*model.User, error) {
+func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*dto.UserResponse, error) {
 	return nil, nil
 }
 

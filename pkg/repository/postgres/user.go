@@ -21,7 +21,7 @@ func (r *UserRepository) Registration(u *model.User) error {
 	return nil
 }
 
-func (r *UserRepository) LogIn(q *dto.RegRequest) (*model.User, error) {
+func (r *UserRepository) LogIn(q *dto.LogInRequest) (*dto.UserResponse, error) {
 	return nil, nil
 }
 
