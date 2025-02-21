@@ -1,9 +1,9 @@
 package main
 
 import (
+	api "password-saver/pkg/api/handlers"
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
-	"password-saver/pkg/handlers/api"
 	"password-saver/pkg/repository"
 	"password-saver/pkg/usecases"
 
