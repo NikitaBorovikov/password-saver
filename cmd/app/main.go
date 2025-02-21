@@ -1,7 +1,8 @@
 package main
 
 import (
-	api "password-saver/pkg/api/handlers"
+	"password-saver/pkg/api/handlers"
+	"password-saver/pkg/api/server"
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
 	"password-saver/pkg/repository"
@@ -24,8 +25,9 @@ func main() {
 
 	repository := repository.InitRepository(db)
 	usecases := usecases.InitUseCases(repository)
-	handlers := api.InitHandlers(usecases)
+	handlers := handlers.InitHandlers(usecases)
 
-	_ = handlers
+	srv := server.NewServer(*handlers, cfg)
+	srv.Start()
 
 }
