@@ -16,9 +16,10 @@ type server struct {
 	cfg        config.Config
 }
 
-func NewServer(handlers handlers.Handlers, cfg *config.Config) *server {
+func NewServer(h handlers.Handlers, cfg *config.Config) *server {
 
-	router := routes.InitRoutes(handlers)
+	router := routes.InitRoutes(h)
+	handlers.InitSession(cfg.Http.SessionKey)
 
 	httpServer := &http.Server{
 		Addr:    cfg.Http.Port,
@@ -27,7 +28,7 @@ func NewServer(handlers handlers.Handlers, cfg *config.Config) *server {
 
 	srv := &server{
 		httpServer: httpServer,
-		handlers:   handlers,
+		handlers:   h,
 		cfg:        *cfg,
 	}
 

@@ -1,6 +1,8 @@
 module password-saver
 
-go 1.22.0
+go 1.23
+
+toolchain go1.23.6
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
@@ -11,7 +13,11 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/go-chi/chi/v5 v5.2.1 // indirect
+	github.com/go-chi/render v1.0.3 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/gorilla/sessions v1.4.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect

@@ -14,6 +14,7 @@ type (
 		UserID       int64  `json:"user_id"`
 		Email        string `json:"email"`
 		HashPassword string `json:"-"`
+		Password     string `json:"-"`
 		Salt         string `json:"-"`
 	}
 
@@ -28,7 +29,7 @@ type (
 
 	UserRepository interface {
 		Registration(u *User) error
-		LogIn(q *dto.LogInRequest) (*dto.UserResponse, error)
+		LogIn(q *dto.LogInRequest) (*User, error)
 		Update(u *User) error
 		Delete(userID int64) error
 	}
