@@ -32,8 +32,8 @@ func main() {
 	usecases := usecases.InitUseCases(repository)
 	handlers := handlers.InitHandlers(usecases)
 
-	srv := server.NewServer(*handlers, cfg)
-	srv.Start()
+	srv := server.NewServer(*handlers, &cfg.Http)
+	srv.Run()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

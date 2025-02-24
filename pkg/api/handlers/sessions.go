@@ -7,7 +7,7 @@ var (
 	sessionStore *sessions.CookieStore
 )
 
-func InitSession(key string) {
+func InitSessionStore(key string) {
 	sessionKey = key
 	sessionStore = sessions.NewCookieStore([]byte(sessionKey))
 }

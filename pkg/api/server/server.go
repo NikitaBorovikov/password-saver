@@ -10,40 +10,33 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type server struct {
+type Server struct {
 	httpServer *http.Server
-	handlers   handlers.Handlers
-	cfg        config.Config
 }
 
-func NewServer(h handlers.Handlers, cfg *config.Config) *server {
-
+func NewServer(h handlers.Handlers, cfg *config.Http) *Server {
 	router := routes.InitRoutes(h)
-	handlers.InitSession(cfg.Http.SessionKey)
+	handlers.InitSessionStore(cfg.SessionKey)
 
-	httpServer := &http.Server{
-		Addr:    cfg.Http.Port,
-		Handler: router,
-	}
-
-	srv := &server{
-		httpServer: httpServer,
-		handlers:   h,
-		cfg:        *cfg,
+	srv := &Server{
+		httpServer: &http.Server{
+			Addr:    cfg.Port,
+			Handler: router,
+		},
 	}
 
 	return srv
 }
 
-func (s *server) Start() {
+func (s *Server) Run() {
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil {
-			logrus.Fatalf("Server failed to start: %v", err)
+			logrus.Fatal(err)
 		}
 	}()
-	logrus.Printf("Server started on port %s", s.cfg.Http.Port)
+	logrus.Printf("Server started on port %s", s.httpServer.Addr)
 }
 
-func (s *server) Shutdown(ctx context.Context) error {
+func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
