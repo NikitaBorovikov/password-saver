@@ -41,10 +41,8 @@ func setUserSession(w http.ResponseWriter, r *http.Request, u *model.User) error
 
 	setSessionOptions(session)
 
-	if err := session.Save(r, w); err != nil {
-		return fmt.Errorf("failed to save session: %v", err)
-	}
-	return nil
+	err = saveSession(session, r, w)
+	return err
 }
 
 func generateSessionID() (string, error) {
@@ -70,4 +68,11 @@ func setSessionOptions(session *sessions.Session) {
 		MaxAge:   3600 * 12,
 		HttpOnly: true,
 	}
+}
+
+func saveSession(session *sessions.Session, r *http.Request, w http.ResponseWriter) error {
+	if err := session.Save(r, w); err != nil {
+		return fmt.Errorf("failed to save session: %v", err)
+	}
+	return nil
 }
