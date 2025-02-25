@@ -3,11 +3,11 @@ package handlers
 import "github.com/gorilla/sessions"
 
 var (
-	sessionKey   string
+	sessionName  string
 	sessionStore *sessions.CookieStore
 )
 
-func InitSessionStore(key string) {
-	sessionKey = key
-	sessionStore = sessions.NewCookieStore([]byte(sessionKey))
+func InitSessionStore(key, name string) {
+	sessionName = name
+	sessionStore = sessions.NewCookieStore([]byte(key))
 }
