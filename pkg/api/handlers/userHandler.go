@@ -8,7 +8,6 @@ import (
 	"password-saver/pkg/usecases"
 
 	"github.com/go-chi/render"
-	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
 )
 
@@ -65,26 +64,6 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, user.UserID)
-}
-
-func setUserSession(w http.ResponseWriter, r *http.Request, u *model.User) error {
-	session, err := sessionStore.Get(r, sessionName)
-	if err != nil {
-		return fmt.Errorf("failed to get sessionKey: %v", err)
-	}
-
-	session.Values["authenticated"] = true
-	session.Values["user_id"] = u.UserID
-
-	session.Options = &sessions.Options{
-		MaxAge:   3600 * 12,
-		HttpOnly: true,
-	}
-
-	if err := session.Save(r, w); err != nil {
-		return fmt.Errorf("failed to save session: %v", err)
-	}
-	return nil
 }
 
 func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
