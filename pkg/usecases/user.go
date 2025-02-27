@@ -46,7 +46,19 @@ func (uc *UserUseCase) Registration(u *model.User) error {
 }
 
 func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
-	return nil, nil
+
+	user, err := uc.UserRepository.LogIn(q)
+	if err != nil {
+		return nil, err
+	}
+
+	if !comparePassword(q.Password, user.HashPassword) {
+		return nil, fmt.Errorf("failed compare passwords: incorrected password")
+	}
+
+	sanitizeUserStruct(user)
+
+	return user, nil
 }
 
 func (uc *UserUseCase) Update(u *model.User) error {
@@ -92,4 +104,17 @@ func hashPassword(u *model.User) error {
 
 	u.HashPassword = string(hashPassword)
 	return nil
+}
+
+func comparePassword(inputPassword, hashPassword string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(inputPassword)); err != nil {
+		return false
+	}
+	return true
+}
+
+func sanitizeUserStruct(u *model.User) {
+	u.Password = ""
+	u.HashPassword = ""
+	u.Salt = ""
 }
