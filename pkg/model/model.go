@@ -12,10 +12,11 @@ type (
 
 	User struct {
 		UserID       int64  `json:"user_id"`
-		Email        string `json:"email"`
+		Email        string `json:"email" validate:"required,email"`
+		Password     string `json:"-" validate:"min=7,max=255"`
 		HashPassword string `json:"-"`
-		Password     string `json:"-"`
 		Salt         string `json:"-"`
+		RegDate      string `json:"reg_date"`
 	}
 
 	PasswordRepository interface {

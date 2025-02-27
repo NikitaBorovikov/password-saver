@@ -36,6 +36,7 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.UserUseCase.Registration(&user); err != nil {
+		logrus.Error(err)
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
