@@ -25,10 +25,14 @@ func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
 	return nil, nil
 }
 
-func (r *UserRepository) Update(u *model.User) error {
+func (r *UserRepository) Update(u *dto.UpdateUserRequest) error {
 	return nil
 }
 
 func (r *UserRepository) Delete(userID int64) error {
 	return nil
+}
+
+func (r *UserRepository) GetUserHashPassword(email string) (string, error) {
+	return "", nil
 }

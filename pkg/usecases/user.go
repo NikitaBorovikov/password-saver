@@ -61,12 +61,27 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 	return user, nil
 }
 
-func (uc *UserUseCase) Update(u *model.User) error {
+func (uc *UserUseCase) Update(u *dto.UpdateUserRequest) error {
+
+	userHashPassword, err := uc.UserRepository.GetUserHashPassword(u.Email)
+	if err != nil {
+		return err
+	}
+
+	if !comparePassword(u.OldPassword, userHashPassword) {
+		return fmt.Errorf("failed compare passwords: incorrected password")
+	}
+
+	if err := uc.UserRepository.Update(u); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (uc *UserUseCase) Delete(userID int64) error {
-	return nil
+	err := uc.UserRepository.Delete(userID)
+	return err
 }
 
 func validateForRegistration(u *model.User) error {
@@ -117,4 +132,12 @@ func sanitizeUserStruct(u *model.User) {
 	u.Password = ""
 	u.HashPassword = ""
 	u.Salt = ""
+}
+
+func (uc *UserUseCase) GetUserHashPassword(email string) (string, error) {
+	hashPassword, err := uc.UserRepository.GetUserHashPassword(email)
+	if err != nil {
+		return "", err
+	}
+	return hashPassword, nil
 }
