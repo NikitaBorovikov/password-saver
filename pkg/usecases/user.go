@@ -52,7 +52,7 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 		return nil, err
 	}
 
-	if !comparePassword(q.Password, user.HashPassword, user.Salt) {
+	if !comparePassword(q.Password, user) {
 		return nil, fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -61,18 +61,30 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 	return user, nil
 }
 
-func (uc *UserUseCase) Update(u *dto.UpdateUserRequest) error {
+func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 
-	userHashPassword, salt, err := uc.UserRepository.GetUserHashPasswordAndSalt(u.UserID)
+	user, err := uc.UserRepository.GetUserByID(req.UserID)
 	if err != nil {
 		return err
 	}
 
-	if !comparePassword(u.OldPassword, userHashPassword, salt) {
+	if err := validateForRegistration(user); err != nil {
+		return err
+	}
+
+	if !comparePassword(req.OldPassword, user) {
 		return fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
-	if err := uc.UserRepository.Update(u); err != nil {
+	if err := generateUserSalt(user); err != nil {
+		return err
+	}
+
+	if err := hashPassword(user); err != nil {
+		return err
+	}
+
+	if err := uc.UserRepository.Update(user); err != nil {
 		return err
 	}
 
@@ -121,9 +133,9 @@ func hashPassword(u *model.User) error {
 	return nil
 }
 
-func comparePassword(inputPassword, hashPassword, salt string) bool {
-	inputPasswordWithSalt := inputPassword + salt
-	if err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(inputPasswordWithSalt)); err != nil {
+func comparePassword(inputPassword string, u *model.User) bool {
+	inputPasswordWithSalt := inputPassword + u.Salt
+	if err := bcrypt.CompareHashAndPassword([]byte(u.HashPassword), []byte(inputPasswordWithSalt)); err != nil {
 		return false
 	}
 	return true
@@ -135,10 +147,7 @@ func sanitizeUserStruct(u *model.User) {
 	u.Salt = ""
 }
 
-func (uc *UserUseCase) GetUserHashPasswordAndSalt(userID int64) (string, string, error) {
-	hashPassword, salt, err := uc.UserRepository.GetUserHashPasswordAndSalt(userID)
-	if err != nil {
-		return "", "", err
-	}
-	return hashPassword, salt, nil
+func (uc *UserUseCase) GetUserByID(userID int64) (*model.User, error) {
+	user, err := uc.UserRepository.GetUserByID(userID)
+	return user, err
 }
