@@ -41,7 +41,9 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, req.Email)
+	regResponse := dto.NewRegResponse(user.UserID, user.Email)
+
+	sendOKResponse(w, r, regResponse)
 }
 
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {

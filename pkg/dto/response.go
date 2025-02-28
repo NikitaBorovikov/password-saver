@@ -6,7 +6,7 @@ type (
 		Password string `json:"password"`
 	}
 
-	UserResponse struct {
+	RegResponse struct {
 		UserID int64  `json:"userID"`
 		Email  string `json:"email"`
 	}
@@ -29,5 +29,12 @@ func NewOKResponse(data interface{}) OKResponse {
 func NewErrorResponse(err error) ErrorResponse {
 	return ErrorResponse{
 		Error: err.Error(),
+	}
+}
+
+func NewRegResponse(userID int64, email string) *RegResponse {
+	return &RegResponse{
+		UserID: userID,
+		Email:  email,
 	}
 }
