@@ -33,6 +33,6 @@ func (r *UserRepository) Delete(userID int64) error {
 	return nil
 }
 
-func (r *UserRepository) GetUserHashPassword(email string) (string, error) {
-	return "", nil
+func (r *UserRepository) GetUserHashPasswordAndSalt(userID int64) (string, string, error) {
+	return "", "", nil
 }

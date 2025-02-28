@@ -67,6 +67,34 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, user.UserID)
 }
 
+func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
+	req, err := decodeUpdateRequest(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	req.UserID = userID
+
+	if err := h.UserUseCase.Update(req); err != nil {
+		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	sendOKResponse(w, r, nil)
+}
+
+func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
 	var req dto.RegRequest
 
@@ -80,7 +108,17 @@ func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
 func decodeLogInRequest(r *http.Request) (*dto.LogInRequest, error) {
 	var req dto.LogInRequest
 
-	if err := render.DecodeJSON(r.Body, req); err != nil {
+	if err := render.DecodeJSON(r.Body, &req); err != nil {
+		return nil, fmt.Errorf("failed to decode request: %v", err)
+	}
+
+	return &req, nil
+}
+
+func decodeUpdateRequest(r *http.Request) (*dto.UpdateUserRequest, error) {
+	var req dto.UpdateUserRequest
+
+	if err := render.DecodeJSON(r.Body, &req); err != nil {
 		return nil, fmt.Errorf("failed to decode request: %v", err)
 	}
 

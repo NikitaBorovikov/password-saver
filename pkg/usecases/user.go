@@ -52,7 +52,7 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 		return nil, err
 	}
 
-	if !comparePassword(q.Password, user.HashPassword) {
+	if !comparePassword(q.Password, user.HashPassword, user.Salt) {
 		return nil, fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -63,12 +63,12 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 
 func (uc *UserUseCase) Update(u *dto.UpdateUserRequest) error {
 
-	userHashPassword, err := uc.UserRepository.GetUserHashPassword(u.Email)
+	userHashPassword, salt, err := uc.UserRepository.GetUserHashPasswordAndSalt(u.UserID)
 	if err != nil {
 		return err
 	}
 
-	if !comparePassword(u.OldPassword, userHashPassword) {
+	if !comparePassword(u.OldPassword, userHashPassword, salt) {
 		return fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -121,8 +121,9 @@ func hashPassword(u *model.User) error {
 	return nil
 }
 
-func comparePassword(inputPassword, hashPassword string) bool {
-	if err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(inputPassword)); err != nil {
+func comparePassword(inputPassword, hashPassword, salt string) bool {
+	inputPasswordWithSalt := inputPassword + salt
+	if err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(inputPasswordWithSalt)); err != nil {
 		return false
 	}
 	return true
@@ -134,10 +135,10 @@ func sanitizeUserStruct(u *model.User) {
 	u.Salt = ""
 }
 
-func (uc *UserUseCase) GetUserHashPassword(email string) (string, error) {
-	hashPassword, err := uc.UserRepository.GetUserHashPassword(email)
+func (uc *UserUseCase) GetUserHashPasswordAndSalt(userID int64) (string, string, error) {
+	hashPassword, salt, err := uc.UserRepository.GetUserHashPasswordAndSalt(userID)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return hashPassword, nil
+	return hashPassword, salt, nil
 }

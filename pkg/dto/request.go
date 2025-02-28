@@ -12,7 +12,7 @@ type (
 	}
 
 	UpdateUserRequest struct {
-		Email       string `json:"email"`
+		UserID      int64  `json:"-"`
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password"`
 	}

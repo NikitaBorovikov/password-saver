@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/usecases"
@@ -18,6 +19,11 @@ func InitHandlers(uc *usecases.UseCases) *Handlers {
 		UserHandler:     newUserHandler(uc.UserUseCase),
 		PasswordHandler: newPasswordHandler(uc.PasswordUseCase),
 	}
+}
+
+func getUserIDFromContext(ctx context.Context) (int64, bool) {
+	userID, ok := ctx.Value("userID").(int64)
+	return userID, ok
 }
 
 func sendErrorRespose(w http.ResponseWriter, r *http.Request, statusCode int, err error) {

@@ -33,6 +33,6 @@ type (
 		LogIn(q *dto.LogInRequest) (*User, error)
 		Update(u *dto.UpdateUserRequest) error
 		Delete(userID int64) error
-		GetUserHashPassword(email string) (string, error)
+		GetUserHashPasswordAndSalt(userID int64) (string, string, error)
 	}
 )
