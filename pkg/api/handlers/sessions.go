@@ -13,7 +13,7 @@ import (
 const (
 	sessionAuthenticated = "authenticated"
 	sessionIDKey         = "sessionID"
-	userIDKey            = "userID"
+	sessionUserIDKey     = "userID" // maybe rename?
 )
 
 var (
@@ -60,7 +60,7 @@ func generateSessionID() (string, error) {
 func setSessionValues(session *sessions.Session, sessionID string, userID int64) {
 	session.Values[sessionAuthenticated] = true
 	session.Values[sessionIDKey] = sessionID
-	session.Values[userIDKey] = userID
+	session.Values[sessionUserIDKey] = userID
 }
 
 func setSessionOptions(session *sessions.Session) {

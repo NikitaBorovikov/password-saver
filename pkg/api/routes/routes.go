@@ -15,7 +15,6 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 }
 
 func authRoutes(r chi.Router, h handlers.Handlers) {
-	//r.Use(AuthMiddleWare)
 	r.Post("/reg", h.UserHandler.Registration)
 	r.Post("/login", h.UserHandler.LogIn)
 }
