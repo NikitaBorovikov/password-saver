@@ -94,7 +94,19 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
 
+	if err := h.UserUseCase.Delete(userID); err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	sendOKResponse(w, r, nil)
 }
 
 func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
