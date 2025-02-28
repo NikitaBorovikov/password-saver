@@ -8,6 +8,8 @@ import (
 
 func InitRoutes(h handlers.Handlers) *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(handlers.CORSMiddleware())
+
 	r.Route("/auth", func(r chi.Router) {
 		authRoutes(r, *h.UserHandler)
 	})

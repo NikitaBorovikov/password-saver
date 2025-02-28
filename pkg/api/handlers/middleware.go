@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"net/http"
+
+	"github.com/go-chi/cors"
 )
 
 type contextKey string
@@ -26,5 +28,14 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		userID := session.Values[sessionUserIDKey].(int64)
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func CORSMiddleware() func(http.Handler) http.Handler {
+	return cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
 	})
 }
