@@ -24,7 +24,7 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 
 func (uc *UserUseCase) Registration(u *model.User) error {
 
-	setRegDateForUser(u)
+	u.RegDate = getTodayDate()
 
 	if err := validateForRegistration(u); err != nil {
 		return err
@@ -105,8 +105,8 @@ func validateForRegistration(u *model.User) error {
 	return nil
 }
 
-func setRegDateForUser(u *model.User) {
-	u.RegDate = time.Now().Format(time.RFC3339)
+func getTodayDate() string {
+	return time.Now().Format(time.RFC3339)
 }
 
 func generateUserSalt(u *model.User) error {
