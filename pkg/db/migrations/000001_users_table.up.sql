@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users(
+    user_id BIGSERIAL PRIMARY KEY NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    hash_password TEXT NOT NULL,
+    salt VARCHAR(64) NOT NULL,
+    reg_date DATE
+);
