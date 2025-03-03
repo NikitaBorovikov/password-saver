@@ -1,6 +1,9 @@
 package usecases
 
-import "password-saver/pkg/model"
+import (
+	"password-saver/pkg/dto"
+	"password-saver/pkg/model"
+)
 
 type PasswordUseCase struct {
 	PasswordRepository model.PasswordRepository
@@ -12,7 +15,7 @@ func NewPasswordUseCase(pr model.PasswordRepository) *PasswordUseCase {
 	}
 }
 
-func (uc *PasswordUseCase) Save(p *model.Password) error {
+func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest) error {
 	return nil
 }
 

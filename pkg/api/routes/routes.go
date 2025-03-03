@@ -40,7 +40,7 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 	r.Use(handlers.AuthMiddleware)
-	// r.Post("/", h.Save)
+	r.Post("/", h.Save)
 	// r.GetAll("/", h.GetAll)
 	// r.Route("/{passwordID}, func(r chi.Rputer){
 	// 		r.Get("/", h.GetByID)

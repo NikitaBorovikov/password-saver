@@ -16,4 +16,8 @@ type (
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password"`
 	}
+	SavePasswordRequest struct {
+		Service  string `json:"service"`
+		Password string `json:"password"`
+	}
 )
