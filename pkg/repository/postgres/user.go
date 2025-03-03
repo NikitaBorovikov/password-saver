@@ -17,8 +17,8 @@ func NewUserRepository(db *sqlx.DB) model.UserRepository {
 	}
 }
 
-func (r *UserRepository) Registration(u *model.User) error {
-	return nil
+func (r *UserRepository) Registration(u *model.User) (int64, error) {
+	return 0, nil
 }
 
 func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {

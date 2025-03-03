@@ -4,19 +4,18 @@ import "password-saver/pkg/dto"
 
 type (
 	Password struct {
-		PasswordID  int64  `json:"password_id"`
-		UserID      int64  `json:"user_id"`
-		Service     string `json:"service"`
-		EncPassword string `json:"-"`
+		PasswordID  int64
+		UserID      int64
+		Service     string
+		EncPassword string
 	}
 
 	User struct {
-		UserID       int64
-		Email        string `validate:"required,email"`
-		Password     string `validate:"min=7,max=100"`
-		HashPassword string
-		Salt         string
-		RegDate      string
+		UserID       int64  `db:"user_id"`
+		Email        string `db:"email"`
+		HashPassword string `db:"hash_password"`
+		Salt         string `db:"salt"`
+		RegDate      string `db:"reg_date"`
 	}
 
 	PasswordRepository interface {
@@ -29,7 +28,7 @@ type (
 	}
 
 	UserRepository interface {
-		Registration(u *User) error
+		Registration(u *User) (int64, error)
 		LogIn(q *dto.LogInRequest) (*User, error)
 		Update(u *User) error
 		Delete(userID int64) error

@@ -22,27 +22,32 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 	}
 }
 
-func (uc *UserUseCase) Registration(u *model.User) error {
+func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 
-	u.RegDate = getTodayDate()
-
-	if err := validateForRegistration(u); err != nil {
-		return err
+	if err := validateForRegistration(req); err != nil {
+		return 0, err
 	}
 
-	if err := generateUserSalt(u); err != nil {
-		return err
+	salt, err := generateUserSalt()
+	if err != nil {
+		return 0, err
 	}
 
-	if err := hashPassword(u); err != nil {
-		return err
+	hashPassword, err := hashPassword(req.Password, salt)
+	if err != nil {
+		return 0, err
 	}
 
-	if err := uc.UserRepository.Registration(u); err != nil {
-		return err
+	user := &model.User{
+		Email:        req.Email,
+		HashPassword: hashPassword,
+		Salt:         salt,
+		RegDate:      getTodayDate(),
 	}
 
-	return nil
+	userID, err := uc.UserRepository.Registration(user)
+	return userID, err
+
 }
 
 func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
@@ -68,7 +73,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 		return err
 	}
 
-	if err := validateForRegistration(user); err != nil {
+	if err := validateForUpdateUser(req); err != nil {
 		return err
 	}
 
@@ -76,13 +81,18 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 		return fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
-	if err := generateUserSalt(user); err != nil {
+	salt, err := generateUserSalt()
+	if err != nil {
 		return err
 	}
 
-	if err := hashPassword(user); err != nil {
+	hashPassword, err := hashPassword(req.NewPassword, salt)
+	if err != nil {
 		return err
 	}
+
+	user.Salt = salt
+	user.HashPassword = hashPassword
 
 	if err := uc.UserRepository.Update(user); err != nil {
 		return err
@@ -96,9 +106,18 @@ func (uc *UserUseCase) Delete(userID int64) error {
 	return err
 }
 
-func validateForRegistration(u *model.User) error {
+func validateForRegistration(req *dto.RegRequest) error {
 	validate := validator.New()
-	if err := validate.Struct(u); err != nil {
+	if err := validate.Struct(req); err != nil {
+		return fmt.Errorf("failed to validate user struct: %v", err)
+	}
+
+	return nil
+}
+
+func validateForUpdateUser(req *dto.UpdateUserRequest) error {
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
 		return fmt.Errorf("failed to validate user struct: %v", err)
 	}
 
@@ -109,28 +128,27 @@ func getTodayDate() string {
 	return time.Now().Format(time.RFC3339)
 }
 
-func generateUserSalt(u *model.User) error {
+func generateUserSalt() (string, error) {
 	byteArr := make([]byte, 32)
 
 	_, err := rand.Read(byteArr)
 	if err != nil {
-		return fmt.Errorf("failed to generate salt: %v", err)
+		return "", fmt.Errorf("failed to generate salt: %v", err)
 	}
 
-	u.Salt = hex.EncodeToString(byteArr)
-	return nil
+	salt := hex.EncodeToString(byteArr)
+	return salt, nil
 }
 
-func hashPassword(u *model.User) error {
-	saltedPassword := u.Password + u.Salt
+func hashPassword(password, salt string) (string, error) {
+	saltedPassword := password + salt
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return fmt.Errorf("failed to hash of the password: %v", err)
+		return "", fmt.Errorf("failed to hash of the password: %v", err)
 	}
 
-	u.HashPassword = string(hashPassword)
-	return nil
+	return string(hashPassword), nil
 }
 
 func comparePassword(inputPassword string, u *model.User) bool {
@@ -142,7 +160,6 @@ func comparePassword(inputPassword string, u *model.User) bool {
 }
 
 func sanitizeUserStruct(u *model.User) {
-	u.Password = ""
 	u.HashPassword = ""
 	u.Salt = ""
 }

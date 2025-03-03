@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"password-saver/pkg/dto"
-	"password-saver/pkg/model"
 	"password-saver/pkg/usecases"
 
 	"github.com/go-chi/render"
@@ -30,18 +29,14 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := model.User{
-		Email:    req.Email,
-		Password: req.Password,
-	}
-
-	if err := h.UserUseCase.Registration(&user); err != nil {
+	userID, err := h.UserUseCase.Registration(req)
+	if err != nil {
 		logrus.Error(err)
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	regResponse := dto.NewRegResponse(user.UserID, user.Email)
+	regResponse := dto.NewRegResponse(userID, req.Email)
 
 	sendOKResponse(w, r, regResponse)
 }
