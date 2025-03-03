@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/model"
 
@@ -18,7 +19,19 @@ func NewUserRepository(db *sqlx.DB) model.UserRepository {
 }
 
 func (r *UserRepository) Registration(u *model.User) (int64, error) {
-	return 0, nil
+	var userID int64
+
+	rows, err := r.db.NamedQuery(queryRegistration, u)
+	if err != nil {
+		return 0, fmt.Errorf("registration error db: %v", err)
+	}
+
+	if rows.Next() {
+		if err := rows.Scan(&userID); err != nil {
+			return 0, fmt.Errorf("failed to scan user ID: %v", err)
+		}
+	}
+	return userID, nil
 }
 
 func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
