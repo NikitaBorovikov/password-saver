@@ -56,7 +56,7 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := setUserSession(w, r, user); err != nil {
+	if err := setUserSession(w, r, user.UserID); err != nil {
 		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}

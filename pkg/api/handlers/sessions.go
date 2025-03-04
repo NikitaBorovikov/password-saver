@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"password-saver/pkg/model"
 
 	"github.com/gorilla/sessions"
 )
@@ -26,7 +25,7 @@ func InitSessionStore(key, name string) {
 	sessionStore = sessions.NewCookieStore([]byte(key))
 }
 
-func setUserSession(w http.ResponseWriter, r *http.Request, u *model.User) error {
+func setUserSession(w http.ResponseWriter, r *http.Request, userID int64) error {
 	session, err := sessionStore.Get(r, sessionName)
 	if err != nil {
 		return fmt.Errorf("failed to get sessionKey: %v", err)
@@ -37,7 +36,7 @@ func setUserSession(w http.ResponseWriter, r *http.Request, u *model.User) error
 		return fmt.Errorf("failed to generate random bytes array: %v", err)
 	}
 
-	setSessionValues(session, sessionID, u.UserID)
+	setSessionValues(session, sessionID, userID)
 
 	setSessionOptions(session)
 

@@ -35,7 +35,13 @@ func (r *UserRepository) Registration(u *model.User) (int64, error) {
 }
 
 func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
-	return nil, nil
+	var user model.User
+
+	if err := r.db.Get(&user, queryLogIn, q.Email); err != nil {
+		return nil, fmt.Errorf("failed to login user: %v", err)
+	}
+
+	return &user, nil
 }
 
 func (r *UserRepository) Update(u *model.User) error {
