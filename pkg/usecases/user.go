@@ -1,8 +1,6 @@
 package usecases
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/model"
@@ -28,12 +26,7 @@ func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 		return 0, err
 	}
 
-	salt, err := generateUserSalt()
-	if err != nil {
-		return 0, err
-	}
-
-	hashPassword, err := hashPassword(req.Password, salt)
+	hashPassword, err := hashPassword(req.Password)
 	if err != nil {
 		return 0, err
 	}
@@ -41,7 +34,6 @@ func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 	user := &model.User{
 		Email:        req.Email,
 		HashPassword: hashPassword,
-		Salt:         salt,
 		RegDate:      getTodayDate(),
 	}
 
@@ -81,18 +73,10 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 		return fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
-	salt, err := generateUserSalt()
+	user.HashPassword, err = hashPassword(req.NewPassword)
 	if err != nil {
 		return err
 	}
-
-	hashPassword, err := hashPassword(req.NewPassword, salt)
-	if err != nil {
-		return err
-	}
-
-	user.Salt = salt
-	user.HashPassword = hashPassword
 
 	if err := uc.UserRepository.Update(user); err != nil {
 		return err
@@ -128,22 +112,9 @@ func getTodayDate() string {
 	return time.Now().Format(time.RFC3339)
 }
 
-func generateUserSalt() (string, error) {
-	byteArr := make([]byte, 32)
+func hashPassword(inputPassword string) (string, error) {
 
-	_, err := rand.Read(byteArr)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate salt: %v", err)
-	}
-
-	salt := hex.EncodeToString(byteArr)
-	return salt, nil
-}
-
-func hashPassword(password, salt string) (string, error) {
-	saltedPassword := password + salt
-
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(saltedPassword), bcrypt.DefaultCost)
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(inputPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return "", fmt.Errorf("failed to hash of the password: %v", err)
 	}
@@ -152,8 +123,7 @@ func hashPassword(password, salt string) (string, error) {
 }
 
 func comparePassword(inputPassword string, u *model.User) bool {
-	inputPasswordWithSalt := inputPassword + u.Salt
-	if err := bcrypt.CompareHashAndPassword([]byte(u.HashPassword), []byte(inputPasswordWithSalt)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.HashPassword), []byte(inputPassword)); err != nil {
 		return false
 	}
 	return true
@@ -161,7 +131,6 @@ func comparePassword(inputPassword string, u *model.User) bool {
 
 func sanitizeUserStruct(u *model.User) {
 	u.HashPassword = ""
-	u.Salt = ""
 }
 
 func (uc *UserUseCase) GetUserByID(userID int64) (*model.User, error) {

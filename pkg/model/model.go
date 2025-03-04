@@ -14,7 +14,6 @@ type (
 		UserID       int64  `db:"user_id"`
 		Email        string `db:"email"`
 		HashPassword string `db:"hash_password"`
-		Salt         string `db:"salt"`
 		RegDate      string `db:"reg_date"`
 	}
 
