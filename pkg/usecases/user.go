@@ -49,7 +49,7 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 		return nil, err
 	}
 
-	if !comparePassword(q.Password, user) {
+	if !comparePassword(q.Password, user.HashPassword) {
 		return nil, fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -69,7 +69,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 		return err
 	}
 
-	if !comparePassword(req.OldPassword, user) {
+	if !comparePassword(req.OldPassword, user.HashPassword) {
 		return fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -122,8 +122,8 @@ func hashPassword(inputPassword string) (string, error) {
 	return string(hashPassword), nil
 }
 
-func comparePassword(inputPassword string, u *model.User) bool {
-	if err := bcrypt.CompareHashAndPassword([]byte(u.HashPassword), []byte(inputPassword)); err != nil {
+func comparePassword(inputPassword, hashPassword string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(inputPassword)); err != nil {
 		return false
 	}
 	return true
