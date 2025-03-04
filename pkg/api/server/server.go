@@ -7,7 +7,13 @@ import (
 	"password-saver/pkg/api/routes"
 	"password-saver/pkg/config"
 
+	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	sessionName  string
+	sessionStore *sessions.CookieStore
 )
 
 type Server struct {

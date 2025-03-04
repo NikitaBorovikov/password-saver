@@ -22,7 +22,7 @@ func InitHandlers(uc *usecases.UseCases) *Handlers {
 }
 
 func getUserIDFromContext(ctx context.Context) (int64, bool) {
-	userID, ok := ctx.Value("userID").(int64)
+	userID, ok := ctx.Value(UserIDKey).(int64)
 	return userID, ok
 }
 

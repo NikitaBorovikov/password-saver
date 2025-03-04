@@ -30,10 +30,9 @@ func authRoutes(r chi.Router, h handlers.UserHandler) {
 
 func profileRoutes(r chi.Router, h handlers.UserHandler) {
 	r.Use(handlers.AuthMiddleware)
-
+	r.Delete("/", h.Delete)
 	r.Route("/{userID}", func(r chi.Router) {
 		r.Put("/", h.Update)
-		r.Delete("/", h.Delete)
 	})
 	//logout
 }

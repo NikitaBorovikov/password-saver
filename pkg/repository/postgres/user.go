@@ -49,6 +49,11 @@ func (r *UserRepository) Update(u *model.User) error {
 }
 
 func (r *UserRepository) Delete(userID int64) error {
+	_, err := r.db.Exec(queryDelUser, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user: %v", err)
+	}
+	//TODO: delete users' passwords from passwords table
 	return nil
 }
 

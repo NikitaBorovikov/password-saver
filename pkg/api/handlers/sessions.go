@@ -23,11 +23,16 @@ var (
 func InitSessionStore(key, name string) {
 	sessionName = name
 	sessionStore = sessions.NewCookieStore([]byte(key))
+	sessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   3600 * 12, // 12 часов
+		HttpOnly: true,      // Защита от XSS
+	}
 }
 
 func setUserSession(w http.ResponseWriter, r *http.Request, userID int64) error {
 	session, err := sessionStore.Get(r, sessionName)
-	if err != nil {
+	if err != nil || session == nil {
 		return fmt.Errorf("failed to get sessionKey: %v", err)
 	}
 
@@ -37,8 +42,6 @@ func setUserSession(w http.ResponseWriter, r *http.Request, userID int64) error 
 	}
 
 	setSessionValues(session, sessionID, userID)
-
-	setSessionOptions(session)
 
 	err = saveSession(session, r, w)
 	return err
@@ -60,13 +63,6 @@ func setSessionValues(session *sessions.Session, sessionID string, userID int64)
 	session.Values[sessionAuthenticated] = true
 	session.Values[sessionIDKey] = sessionID
 	session.Values[sessionUserIDKey] = userID
-}
-
-func setSessionOptions(session *sessions.Session) {
-	session.Options = &sessions.Options{
-		MaxAge:   3600 * 12,
-		HttpOnly: true,
-	}
 }
 
 func saveSession(session *sessions.Session, r *http.Request, w http.ResponseWriter) error {
