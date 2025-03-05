@@ -3,7 +3,9 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"password-saver/pkg/api/session"
 
 	"github.com/go-chi/cors"
 )
@@ -12,31 +14,40 @@ type contextKey string
 
 const UserIDKey contextKey = "userID"
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+const (
+	sessionAuthenticated = "authenticated"
+	sessionIDKey         = "sessionID"
+	sessionUserIDKey     = "userID" // maybe rename?
+)
 
-		session, err := sessionStore.Get(r, sessionName)
-		if err != nil || session == nil {
-			sendErrorRespose(w, r, http.StatusInternalServerError, err)
-			return
-		}
+func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			session, err := sm.Store.Get(r, sm.Name)
+			if err != nil || session == nil {
+				log.Printf("Failed to get session: %v", err)
+				sendErrorRespose(w, r, http.StatusInternalServerError, err)
+				return
+			}
 
-		auth, ok := session.Values[sessionAuthenticated].(bool)
-		if !ok || !auth {
-			sendErrorRespose(w, r, http.StatusForbidden, nil)
-			return
-		}
+			auth, ok := session.Values[sessionAuthenticated].(bool)
+			if !ok || !auth {
+				sendErrorRespose(w, r, http.StatusForbidden, fmt.Errorf("not authenticated"))
+				return
+			}
 
-		userID, ok := session.Values[sessionUserIDKey].(int64)
-		if !ok {
-			err := fmt.Errorf("user ID not found or invalid")
-			sendErrorRespose(w, r, http.StatusForbidden, err)
-			return
-		}
+			userID, ok := session.Values[sessionUserIDKey].(int64)
+			if !ok {
+				err := fmt.Errorf("user ID not found or invalid")
+				sendErrorRespose(w, r, http.StatusForbidden, err)
+				return
+			}
 
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			ctx := context.WithValue(r.Context(), UserIDKey, userID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+
+		})
+	}
 }
 
 func CORSMiddleware() func(http.Handler) http.Handler {

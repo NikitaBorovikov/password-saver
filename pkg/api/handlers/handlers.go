@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"password-saver/pkg/api/session"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/usecases"
 
@@ -14,9 +15,9 @@ type Handlers struct {
 	PasswordHandler *PasswordHandler
 }
 
-func InitHandlers(uc *usecases.UseCases) *Handlers {
+func InitHandlers(uc *usecases.UseCases, session *session.SessionManager) *Handlers {
 	return &Handlers{
-		UserHandler:     newUserHandler(uc.UserUseCase),
+		UserHandler:     newUserHandler(uc.UserUseCase, session),
 		PasswordHandler: newPasswordHandler(uc.PasswordUseCase),
 	}
 }

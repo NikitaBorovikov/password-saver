@@ -7,13 +7,7 @@ import (
 	"password-saver/pkg/api/routes"
 	"password-saver/pkg/config"
 
-	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
-)
-
-var (
-	sessionName  string
-	sessionStore *sessions.CookieStore
 )
 
 type Server struct {
@@ -22,8 +16,6 @@ type Server struct {
 
 func NewServer(h handlers.Handlers, cfg *config.Http) *Server {
 	router := routes.InitRoutes(h)
-	handlers.InitSessionStore(cfg.SessionKey, "auth") // where to save a session name?
-
 	srv := &Server{
 		httpServer: &http.Server{
 			Addr:    cfg.Port,

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"password-saver/pkg/api/handlers"
 	"password-saver/pkg/api/server"
+	"password-saver/pkg/api/session"
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
 	"password-saver/pkg/repository"
@@ -28,9 +29,11 @@ func main() {
 	}
 	defer db.Close()
 
+	session := session.NewSessionManager(cfg.Http.SessionKey, "auth")
+
 	repository := repository.InitRepository(db)
 	usecases := usecases.InitUseCases(repository)
-	handlers := handlers.InitHandlers(usecases)
+	handlers := handlers.InitHandlers(usecases, session)
 
 	srv := server.NewServer(*handlers, &cfg.Http)
 	srv.Run()

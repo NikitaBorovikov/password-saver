@@ -1,22 +1,28 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/http"
+	"password-saver/pkg/api/session"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/usecases"
 
 	"github.com/go-chi/render"
+	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
 )
 
 type UserHandler struct {
 	UserUseCase *usecases.UserUseCase
+	Session     *session.SessionManager
 }
 
-func newUserHandler(uc *usecases.UserUseCase) *UserHandler {
+func newUserHandler(uc *usecases.UserUseCase, session *session.SessionManager) *UserHandler {
 	return &UserHandler{
 		UserUseCase: uc,
+		Session:     session,
 	}
 }
 
@@ -56,7 +62,7 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := setUserSession(w, r, user.UserID); err != nil {
+	if err := setUserSession(w, r, h.Session, user.UserID); err != nil {
 		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
@@ -132,4 +138,47 @@ func decodeUpdateRequest(r *http.Request) (*dto.UpdateUserRequest, error) {
 	}
 
 	return &req, nil
+}
+
+func setUserSession(w http.ResponseWriter, r *http.Request, s *session.SessionManager, userID int64) error {
+
+	session, err := s.Store.Get(r, s.Name)
+	if err != nil || session == nil {
+		return fmt.Errorf("failed to get sessionKey: %v", err)
+	}
+
+	sessionID, err := generateSessionID()
+	if err != nil {
+		return fmt.Errorf("failed to generate random bytes array: %v", err)
+	}
+
+	setSessionValues(session, sessionID, userID)
+
+	err = saveSession(session, r, w)
+	return err
+}
+
+func generateSessionID() (string, error) {
+	byteArr := make([]byte, 32)
+
+	_, err := rand.Read(byteArr)
+	if err != nil {
+		return "", err
+	}
+
+	sessionID := hex.EncodeToString(byteArr)
+	return sessionID, nil
+}
+
+func setSessionValues(session *sessions.Session, sessionID string, userID int64) {
+	session.Values[sessionAuthenticated] = true
+	session.Values[sessionIDKey] = sessionID
+	session.Values[sessionUserIDKey] = userID
+}
+
+func saveSession(session *sessions.Session, r *http.Request, w http.ResponseWriter) error {
+	if err := session.Save(r, w); err != nil {
+		return fmt.Errorf("failed to save session: %v", err)
+	}
+	return nil
 }

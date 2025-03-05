@@ -10,14 +10,18 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(handlers.CORSMiddleware())
 
+	authMiddleware := handlers.AuthMiddleware(h.UserHandler.Session)
+
 	r.Route("/auth", func(r chi.Router) {
 		authRoutes(r, *h.UserHandler)
 	})
 	r.Route("/profile", func(r chi.Router) {
+		r.Use(authMiddleware)
 		profileRoutes(r, *h.UserHandler)
 	})
 
 	r.Route("/passwords", func(r chi.Router) {
+		r.Use(authMiddleware)
 		passwordRoutes(r, *h.PasswordHandler)
 	})
 	return r
@@ -29,7 +33,6 @@ func authRoutes(r chi.Router, h handlers.UserHandler) {
 }
 
 func profileRoutes(r chi.Router, h handlers.UserHandler) {
-	r.Use(handlers.AuthMiddleware)
 	r.Delete("/", h.Delete)
 	r.Route("/{userID}", func(r chi.Router) {
 		r.Put("/", h.Update)
@@ -38,7 +41,6 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 }
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
-	r.Use(handlers.AuthMiddleware)
 	r.Post("/", h.Save)
 	// r.GetAll("/", h.GetAll)
 	// r.Route("/{passwordID}, func(r chi.Rputer){
