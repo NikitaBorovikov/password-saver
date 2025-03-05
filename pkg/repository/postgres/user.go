@@ -45,6 +45,10 @@ func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
 }
 
 func (r *UserRepository) Update(u *model.User) error {
+	_, err := r.db.NamedExec(queryUpdateUser, u)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %v", err)
+	}
 	return nil
 }
 
