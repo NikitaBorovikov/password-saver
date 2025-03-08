@@ -87,7 +87,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 
 func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 	user, err := uc.UserRepository.GetByID(userID)
-	user.HashPassword = ""
+	sanitizeUserStruct(user)
 	return user, err
 }
 
