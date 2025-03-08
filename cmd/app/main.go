@@ -32,7 +32,7 @@ func main() {
 	session := session.NewSessionManager(cfg.Http.SessionKey, "auth")
 
 	repository := repository.InitRepository(db)
-	usecases := usecases.InitUseCases(repository)
+	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
 	handlers := handlers.InitHandlers(usecases, session)
 
 	srv := server.NewServer(*handlers, &cfg.Http)

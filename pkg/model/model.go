@@ -6,7 +6,7 @@ type (
 	Password struct {
 		PasswordID  int64
 		UserID      int64
-		Service     string
+		EncService  string
 		EncPassword string
 	}
 

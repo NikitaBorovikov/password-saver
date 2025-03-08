@@ -17,7 +17,7 @@ type (
 		NewPassword string `json:"new_password" validate:"min=7,max=100"`
 	}
 	SavePasswordRequest struct {
-		Service  string `json:"service"`
-		Password string `json:"password"`
+		Service  string `json:"service" validate:"required,min=1,max=100"`
+		Password string `json:"password" validate:"required,min=1,max=100"`
 	}
 )

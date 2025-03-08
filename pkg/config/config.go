@@ -7,8 +7,9 @@ import (
 
 type (
 	Config struct {
-		Postgres Postgres
-		Http     Http `yml:"http"`
+		Postgres    Postgres
+		EncryptKeys EncryptKeys
+		Http        Http `yml:"http"`
 	}
 
 	Postgres struct {
@@ -18,6 +19,11 @@ type (
 	Http struct {
 		Port       string `yml:"port"`
 		SessionKey string `env:"SESSION_KEY"`
+	}
+
+	EncryptKeys struct {
+		EncPasswordKey string `env:"PASSWORD_ENC_KEY"`
+		EncServiceKey  string `env:"SERVICE_ENC_KEY"`
 	}
 )
 
@@ -44,6 +50,10 @@ func ReadFromEnv(cfg *Config) error {
 		return err
 	}
 
-	err := cleanenv.ReadEnv(&cfg.Http)
+	if err := cleanenv.ReadEnv(&cfg.Http); err != nil {
+		return err
+	}
+
+	err := cleanenv.ReadEnv(&cfg.EncryptKeys)
 	return err
 }
