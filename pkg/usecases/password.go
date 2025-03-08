@@ -22,31 +22,25 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 	}
 }
 
-func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest) error {
+func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest) (err error) {
 
 	if err := validateForSavePassword(req); err != nil {
 		return err
 	}
 
-	plainPassword := []byte(req.Password)
-	plainService := []byte(req.Service)
+	var p model.Password
 
-	encPassword, err := encryption.Encrypt(plainPassword, []byte(uc.cfg.EncPasswordKey))
+	p.EncPassword, err = encryptData(req.Password, uc.cfg.EncPasswordKey)
 	if err != nil {
 		return err
 	}
 
-	encService, err := encryption.Encrypt(plainService, []byte(uc.cfg.EncServiceKey))
+	p.EncService, err = encryptData(req.Service, uc.cfg.EncServiceKey)
 	if err != nil {
 		return err
 	}
 
-	p := &model.Password{
-		EncService:  encService,
-		EncPassword: encPassword,
-	}
-
-	if err := uc.PasswordRepository.Save(p); err != nil {
+	if err := uc.PasswordRepository.Save(&p); err != nil {
 		return err
 	}
 	return nil
@@ -74,4 +68,13 @@ func validateForSavePassword(req *dto.SavePasswordRequest) error {
 		return fmt.Errorf("failed to validate password struct: %v", err)
 	}
 	return nil
+}
+
+func encryptData(data string, encKey string) (string, error) {
+	encData, err := encryption.Encrypt([]byte(data), []byte(encKey))
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt data: %v", err)
+	}
+
+	return encData, nil
 }
