@@ -61,7 +61,7 @@ func (r *UserRepository) Delete(userID int64) error {
 	return nil
 }
 
-func (r *UserRepository) GetUserByID(userID int64) (*model.User, error) {
+func (r *UserRepository) GetByID(userID int64) (*model.User, error) {
 	var user model.User
 	if err := r.db.Get(&user, queryGetUserByID, userID); err != nil {
 		return nil, fmt.Errorf("failed to get user by ID: %v", err)

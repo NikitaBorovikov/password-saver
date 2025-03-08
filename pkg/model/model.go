@@ -31,6 +31,6 @@ type (
 		LogIn(q *dto.LogInRequest) (*User, error)
 		Update(u *User) error
 		Delete(userID int64) error
-		GetUserByID(userID int64) (*User, error)
+		GetByID(userID int64) (*User, error)
 	}
 )

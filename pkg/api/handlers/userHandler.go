@@ -42,9 +42,9 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	regResponse := dto.NewRegResponse(userID, req.Email)
+	userInfo := dto.NewGetUserInfoResponse(userID, req.Email)
 
-	sendOKResponse(w, r, regResponse)
+	sendOKResponse(w, r, userInfo)
 }
 
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
@@ -92,6 +92,26 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, nil)
+}
+
+func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
+	user, err := h.UserUseCase.GetByID(userID)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	userInfo := dto.NewGetUserInfoResponse(user.UserID, user.Email)
+
+	sendOKResponse(w, r, userInfo)
+
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {

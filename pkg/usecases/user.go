@@ -60,7 +60,7 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 
 func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 
-	user, err := uc.UserRepository.GetUserByID(req.UserID)
+	user, err := uc.UserRepository.GetByID(req.UserID)
 	if err != nil {
 		return err
 	}
@@ -83,6 +83,12 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
 	}
 
 	return nil
+}
+
+func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
+	user, err := uc.UserRepository.GetByID(userID)
+	user.HashPassword = ""
+	return user, err
 }
 
 func (uc *UserUseCase) Delete(userID int64) error {
@@ -131,9 +137,4 @@ func comparePassword(inputPassword, hashPassword string) bool {
 
 func sanitizeUserStruct(u *model.User) {
 	u.HashPassword = ""
-}
-
-func (uc *UserUseCase) GetUserByID(userID int64) (*model.User, error) {
-	user, err := uc.UserRepository.GetUserByID(userID)
-	return user, err
 }
