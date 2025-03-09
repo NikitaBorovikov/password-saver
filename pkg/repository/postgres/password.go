@@ -45,5 +45,9 @@ func (r *PasswordRepository) Update(p *model.Password) error {
 }
 
 func (r *PasswordRepository) Delete(passwordID int64) error {
+	_, err := r.db.Exec(queryDelPassword, passwordID)
+	if err != nil {
+		return fmt.Errorf("failed to delete password: %v", err)
+	}
 	return nil
 }

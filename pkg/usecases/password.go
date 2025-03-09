@@ -71,7 +71,8 @@ func (uc *PasswordUseCase) Update(p *model.Password) error {
 }
 
 func (uc *PasswordUseCase) Delete(passwordID int64) error {
-	return nil
+	err := uc.PasswordRepository.Delete(passwordID)
+	return err
 }
 
 func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {

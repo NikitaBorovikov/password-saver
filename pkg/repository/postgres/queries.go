@@ -9,4 +9,5 @@ const (
 
 	queryInserNewPassword    = "INSERT INTO passwords (user_id, enc_service, enc_password) VALUES (:user_id, :enc_service, :enc_password)"
 	querySelectUserPasswords = "SELECT enc_service, enc_password FROM passwords WHERE user_id = $1"
+	queryDelPassword         = "DELETE FROM passwords WHERE password_id = $1"
 )
