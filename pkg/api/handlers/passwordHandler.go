@@ -58,6 +58,22 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, userPasswords)
 }
 
+func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	passwordID, err := getPasswordIDFromURL(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	passwordResponse, err := h.PasswordUseCase.GetByID(passwordID)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	sendOKResponse(w, r, passwordResponse)
+}
+
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {

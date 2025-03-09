@@ -44,6 +44,7 @@ func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 	r.Get("/", h.GetAll)
 
 	r.Route("/{passwordID}", func(r chi.Router) {
+		r.Get("/", h.GetByID)
 		r.Delete("/", h.Delete)
 	})
 }

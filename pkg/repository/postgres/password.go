@@ -36,8 +36,13 @@ func (r *PasswordRepository) GetAll(userID int64) ([]model.Password, error) {
 	return passwords, nil
 }
 
-func (r *PasswordRepository) GetByID(passwordID string) (*model.Password, error) {
-	return nil, nil
+func (r *PasswordRepository) GetByID(passwordID int64) (*model.Password, error) {
+	var password model.Password
+	if err := r.db.Get(&password, queryGetPasswordByID, passwordID); err != nil {
+		return nil, fmt.Errorf("failed to get password by ID: %v", err)
+	}
+
+	return &password, nil
 }
 
 func (r *PasswordRepository) Update(p *model.Password) error {

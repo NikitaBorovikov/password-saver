@@ -62,8 +62,25 @@ func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) 
 	return passwordResponse, nil
 }
 
-func (uc *PasswordUseCase) GetByID(passwordID string) (*model.Password, error) {
-	return nil, nil
+func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, error) {
+	userPassword, err := uc.PasswordRepository.GetByID(passwordID)
+	if err != nil {
+		return nil, err
+	}
+
+	var passwordResponse dto.PasswordResponse
+
+	passwordResponse.Password, err = decodeData(userPassword.EncPassword, uc.cfg.EncPasswordKey)
+	if err != nil {
+		return nil, err
+	}
+
+	passwordResponse.Service, err = decodeData(userPassword.EncService, uc.cfg.EncServiceKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &passwordResponse, nil
 }
 
 func (uc *PasswordUseCase) Update(p *model.Password) error {

@@ -38,7 +38,7 @@ func Decrypt(ciphertext []byte, key []byte) (string, error) {
 		return "", err
 	}
 
-	if len(ciphertext) < aes.BlockSize {
+	if len(ciphertext) < 12 {
 		return "", errors.New("ciphertext too short")
 	}
 	iv := ciphertext[:12]
@@ -54,7 +54,5 @@ func Decrypt(ciphertext []byte, key []byte) (string, error) {
 		return "", err
 	}
 
-	plainTextStr := base64.StdEncoding.EncodeToString(plainText)
-
-	return plainTextStr, nil
+	return string(plainText), nil
 }
