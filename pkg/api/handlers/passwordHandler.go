@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/usecases"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -56,6 +58,21 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, userPasswords)
 }
 
+func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	passwordID, err := getPasswordIDFromURL(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.PasswordUseCase.Delete(passwordID); err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	sendOKResponse(w, r, nil)
+}
+
 func decodeSavePasswordRequest(r *http.Request) (*dto.SavePasswordRequest, error) {
 	var req dto.SavePasswordRequest
 
@@ -64,4 +81,15 @@ func decodeSavePasswordRequest(r *http.Request) (*dto.SavePasswordRequest, error
 	}
 
 	return &req, nil
+}
+
+func getPasswordIDFromURL(r *http.Request) (int64, error) {
+	passwordID := chi.URLParam(r, "passwordID")
+
+	passwordIDInt, err := strconv.Atoi(passwordID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to convert str to int")
+	}
+
+	return int64(passwordIDInt), nil
 }

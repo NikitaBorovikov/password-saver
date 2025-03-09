@@ -44,6 +44,6 @@ func (r *PasswordRepository) Update(p *model.Password) error {
 	return nil
 }
 
-func (r *PasswordRepository) Delete(passwordID string) error {
+func (r *PasswordRepository) Delete(passwordID int64) error {
 	return nil
 }

@@ -70,7 +70,7 @@ func (uc *PasswordUseCase) Update(p *model.Password) error {
 	return nil
 }
 
-func (uc *PasswordUseCase) Delete(passwordID string) error {
+func (uc *PasswordUseCase) Delete(passwordID int64) error {
 	return nil
 }
 

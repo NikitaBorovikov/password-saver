@@ -22,7 +22,7 @@ type (
 		GetAll(userID int64) ([]Password, error)
 		GetByID(passwordID string) (*Password, error)
 		Update(p *Password) error
-		Delete(passwordID string) error
+		Delete(passwordID int64) error
 		//Generate New
 	}
 
