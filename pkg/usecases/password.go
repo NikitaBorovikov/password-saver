@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"encoding/base64"
 	"fmt"
 	"password-saver/pkg/config"
 	"password-saver/pkg/dto"
@@ -22,13 +23,14 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 	}
 }
 
-func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest) (err error) {
+func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest, userID int64) (err error) {
 
 	if err := validateForSavePassword(req); err != nil {
 		return err
 	}
 
 	var p model.Password
+	p.UserID = userID
 
 	p.EncPassword, err = encryptData(req.Password, uc.cfg.EncPasswordKey)
 	if err != nil {
@@ -46,8 +48,30 @@ func (uc *PasswordUseCase) Save(req *dto.SavePasswordRequest) (err error) {
 	return nil
 }
 
-func (uc *PasswordUseCase) GetAll(userID int64) ([]model.Password, error) {
-	return nil, nil
+func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) {
+	userPasswords, err := uc.PasswordRepository.GetAll(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	passwordResponse := []dto.PasswordResponse{}
+
+	for _, elem := range userPasswords {
+		var userPassword dto.PasswordResponse
+		password, _ := base64.StdEncoding.DecodeString(elem.EncPassword)
+		service, _ := base64.StdEncoding.DecodeString(elem.EncService)
+		userPassword.Password, err = encryption.Decrypt((password), []byte(uc.cfg.EncPasswordKey))
+		if err != nil {
+			return nil, err
+		}
+		userPassword.Service, err = encryption.Decrypt([]byte(service), []byte(uc.cfg.EncServiceKey))
+		if err != nil {
+			return nil, err
+		}
+		passwordResponse = append(passwordResponse, userPassword)
+	}
+
+	return passwordResponse, nil
 }
 
 func (uc *PasswordUseCase) GetByID(passwordID string) (*model.Password, error) {

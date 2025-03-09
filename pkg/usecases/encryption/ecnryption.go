@@ -41,8 +41,8 @@ func Decrypt(ciphertext []byte, key []byte) (string, error) {
 	if len(ciphertext) < aes.BlockSize {
 		return "", errors.New("ciphertext too short")
 	}
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
+	iv := ciphertext[:12]
+	ciphertext = ciphertext[12:]
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {

@@ -20,16 +20,40 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 }
 
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
 	req, err := decodeSavePasswordRequest(r)
 	if err != nil {
 		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
 	}
 
-	if err := h.PasswordUseCase.Save(req); err != nil {
+	if err := h.PasswordUseCase.Save(req, userID); err != nil {
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
+}
+
+func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
+	userPasswords, err := h.PasswordUseCase.GetAll(userID)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
+	sendOKResponse(w, r, userPasswords)
 }
 
 func decodeSavePasswordRequest(r *http.Request) (*dto.SavePasswordRequest, error) {

@@ -4,10 +4,10 @@ import "password-saver/pkg/dto"
 
 type (
 	Password struct {
-		PasswordID  int64
-		UserID      int64
-		EncService  string
-		EncPassword string
+		PasswordID  int64  `db:"password_id"`
+		UserID      int64  `db:"user_id"`
+		EncService  string `db:"enc_service"`
+		EncPassword string `db:"enc_password"`
 	}
 
 	User struct {
@@ -19,8 +19,8 @@ type (
 
 	PasswordRepository interface {
 		Save(p *Password) error
-		GetAll(userID int64) ([]dto.PasswordResponse, error)
-		GetByID(passwordID string) (*dto.PasswordResponse, error)
+		GetAll(userID int64) ([]Password, error)
+		GetByID(passwordID string) (*Password, error)
 		Update(p *Password) error
 		Delete(passwordID string) error
 		//Generate New

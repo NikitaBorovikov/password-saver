@@ -41,7 +41,7 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 	r.Post("/", h.Save)
-	// r.GetAll("/", h.GetAll)
+	r.Get("/", h.GetAll)
 	// r.Route("/{passwordID}, func(r chi.Rputer){
 	// 		r.Get("/", h.GetByID)
 	//		r.Put("/", h.Update)
