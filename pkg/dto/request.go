@@ -12,7 +12,6 @@ type (
 	}
 
 	UpdateUserRequest struct {
-		UserID      int64  `json:"-"`
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password" validate:"min=7,max=100"`
 	}

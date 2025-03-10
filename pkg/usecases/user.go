@@ -58,9 +58,9 @@ func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
 	return user, nil
 }
 
-func (uc *UserUseCase) Update(req *dto.UpdateUserRequest) error {
+func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 
-	user, err := uc.UserRepository.GetByID(req.UserID)
+	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
 		return err
 	}

@@ -84,9 +84,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.UserID = userID
-
-	if err := h.UserUseCase.Update(req); err != nil {
+	if err := h.UserUseCase.Update(req, userID); err != nil {
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
