@@ -22,7 +22,7 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 
 func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 
-	if err := validateForRegistration(req); err != nil {
+	if err := validateRegRequest(req); err != nil {
 		return 0, err
 	}
 
@@ -42,14 +42,18 @@ func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 
 }
 
-func (uc *UserUseCase) LogIn(q *dto.LogInRequest) (*model.User, error) {
+func (uc *UserUseCase) LogIn(req *dto.LogInRequest) (*model.User, error) {
 
-	user, err := uc.UserRepository.LogIn(q)
+	if err := validateLoginRequest(req); err != nil {
+		return nil, err
+	}
+
+	user, err := uc.UserRepository.LogIn(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if !comparePassword(q.Password, user.HashPassword) {
+	if !comparePassword(req.Password, user.HashPassword) {
 		return nil, fmt.Errorf("failed compare passwords: incorrected password")
 	}
 
@@ -65,7 +69,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 		return err
 	}
 
-	if err := validateForUpdateUser(req); err != nil {
+	if err := validateUpdateRequest(req); err != nil {
 		return err
 	}
 
@@ -96,7 +100,7 @@ func (uc *UserUseCase) Delete(userID int64) error {
 	return err
 }
 
-func validateForRegistration(req *dto.RegRequest) error {
+func validateRegRequest(req *dto.RegRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
 		return fmt.Errorf("failed to validate user struct: %v", err)
@@ -105,7 +109,16 @@ func validateForRegistration(req *dto.RegRequest) error {
 	return nil
 }
 
-func validateForUpdateUser(req *dto.UpdateUserRequest) error {
+func validateLoginRequest(req *dto.LogInRequest) error {
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return fmt.Errorf("failed to validate user struct: %v", err)
+	}
+
+	return nil
+}
+
+func validateUpdateRequest(req *dto.UpdateUserRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
 		return fmt.Errorf("failed to validate user struct: %v", err)
