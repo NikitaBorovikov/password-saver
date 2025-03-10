@@ -15,6 +15,7 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 	r.Route("/auth", func(r chi.Router) {
 		authRoutes(r, *h.UserHandler)
 	})
+
 	r.Route("/profile", func(r chi.Router) {
 		r.Use(authMiddleware)
 		profileRoutes(r, *h.UserHandler)
@@ -45,6 +46,7 @@ func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 
 	r.Route("/{passwordID}", func(r chi.Router) {
 		r.Get("/", h.GetByID)
+		r.Put("/", h.Update)
 		r.Delete("/", h.Delete)
 	})
 }

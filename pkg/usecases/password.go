@@ -83,7 +83,28 @@ func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, err
 	return &passwordResponse, nil
 }
 
-func (uc *PasswordUseCase) Update(p *model.Password) error {
+func (uc *PasswordUseCase) Update(req *dto.UpdatePasswordRequest, passwordID, userID int64) error {
+
+	if err := validateForUpdatePassword(req); err != nil {
+		return err
+	}
+
+	encPassword, err := encryptData(req.Password, uc.cfg.EncPasswordKey)
+	if err != nil {
+		return err
+	}
+
+	encService, err := encryptData(req.Service, uc.cfg.EncServiceKey)
+	if err != nil {
+		return err
+	}
+
+	password := newPassword(passwordID, userID, encService, encPassword)
+
+	if err := uc.PasswordRepository.Update(password); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -124,6 +145,14 @@ func validateForSavePassword(req *dto.SavePasswordRequest) error {
 	return nil
 }
 
+func validateForUpdatePassword(req *dto.UpdatePasswordRequest) error {
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return fmt.Errorf("failed to validate password struct: %v", err)
+	}
+	return nil
+}
+
 func encryptData(data string, encKey string) (string, error) {
 	encData, err := encryption.Encrypt([]byte(data), []byte(encKey))
 	if err != nil {
@@ -145,4 +174,13 @@ func decodeData(encData string, encKey string) (string, error) {
 	}
 
 	return plainData, nil
+}
+
+func newPassword(passwordID, userID int64, encService, encPassword string) *model.Password {
+	return &model.Password{
+		PasswordID:  passwordID,
+		UserID:      userID,
+		EncService:  encService,
+		EncPassword: encPassword,
+	}
 }

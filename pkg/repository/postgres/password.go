@@ -46,6 +46,10 @@ func (r *PasswordRepository) GetByID(passwordID int64) (*model.Password, error) 
 }
 
 func (r *PasswordRepository) Update(p *model.Password) error {
+	_, err := r.db.NamedExec(queryUpdatePassword, p)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %v", err)
+	}
 	return nil
 }
 

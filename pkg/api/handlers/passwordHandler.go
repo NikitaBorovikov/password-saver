@@ -74,6 +74,34 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, passwordResponse)
 }
 
+func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
+	passwordID, err := getPasswordIDFromURL(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		err := fmt.Errorf("no userID in context")
+		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		return
+	}
+
+	req, err := decodeUpdatePasswordRequest(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.PasswordUseCase.Update(req, passwordID, userID); err != nil {
+		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	sendOKResponse(w, r, "password is updated")
+}
+
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
@@ -91,6 +119,16 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 func decodeSavePasswordRequest(r *http.Request) (*dto.SavePasswordRequest, error) {
 	var req dto.SavePasswordRequest
+
+	if err := render.DecodeJSON(r.Body, &req); err != nil {
+		return nil, fmt.Errorf("failed to decode request: %v", err)
+	}
+
+	return &req, nil
+}
+
+func decodeUpdatePasswordRequest(r *http.Request) (*dto.UpdatePasswordRequest, error) {
+	var req dto.UpdatePasswordRequest
 
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
 		return nil, fmt.Errorf("failed to decode request: %v", err)
