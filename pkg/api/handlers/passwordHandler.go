@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"password-saver/pkg/dto"
@@ -9,6 +10,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+)
+
+var (
+	errorNotInContext = errors.New("no userID in context")
 )
 
 type PasswordHandler struct {
@@ -24,8 +29,7 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
 		return
 	}
 
@@ -39,13 +43,14 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	sendOKResponse(w, r, "password is saved")
 }
 
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
 		return
 	}
 
@@ -83,8 +88,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
 		return
 	}
 
@@ -114,7 +118,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, nil)
+	sendOKResponse(w, r, "password is deleted")
 }
 
 func decodePasswordRequest(r *http.Request) (*dto.PasswordRequest, error) {
