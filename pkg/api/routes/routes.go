@@ -37,7 +37,7 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 	r.Get("/", h.GetByID)
 	r.Delete("/", h.Delete)
 	r.Put("/", h.Update)
-	//logout
+	r.Post("/logout", h.Logout)
 }
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {

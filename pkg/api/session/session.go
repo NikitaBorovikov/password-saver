@@ -12,7 +12,7 @@ func NewSessionManager(key, name string) *SessionManager {
 	store.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   3600 * 12, // 12 hours
-		HttpOnly: true,      // Защита от XSS
+		HttpOnly: true,
 	}
 
 	return &SessionManager{

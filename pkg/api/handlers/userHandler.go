@@ -128,6 +128,25 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, nil)
 }
 
+func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	s := h.Session
+	session, err := s.Store.Get(r, s.Name)
+	if err != nil || session == nil {
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	cleanSessionInfo(session)
+
+	if err := session.Save(r, w); err != nil {
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	sendOKResponse(w, r, "logout is done")
+
+}
+
 func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
 	var req dto.RegRequest
 
@@ -199,4 +218,9 @@ func saveSession(session *sessions.Session, r *http.Request, w http.ResponseWrit
 		return fmt.Errorf("failed to save session: %v", err)
 	}
 	return nil
+}
+
+func cleanSessionInfo(session *sessions.Session) {
+	session.Values[sessionAuthenticated] = false
+	session.Options.MaxAge = -1 // delete session
 }

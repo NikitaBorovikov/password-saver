@@ -17,7 +17,7 @@ const UserIDKey contextKey = "userID"
 const (
 	sessionAuthenticated = "authenticated"
 	sessionIDKey         = "sessionID"
-	sessionUserIDKey     = "userID" // maybe rename?
+	sessionUserIDKey     = "userID"
 )
 
 func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler {
