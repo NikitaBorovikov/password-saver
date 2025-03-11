@@ -44,7 +44,7 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	userInfo := dto.NewGetUserInfoResponse(userID, req.Email)
 
-	sendOKResponse(w, r, userInfo)
+	sendOKResponse(w, r, http.StatusCreated, userInfo)
 }
 
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
@@ -67,14 +67,13 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, user.UserID)
+	sendOKResponse(w, r, http.StatusOK, user.UserID)
 }
 
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
 		return
 	}
 
@@ -89,26 +88,25 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, nil)
+	sendOKResponse(w, r, http.StatusOK, nil)
 }
 
 func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
 		return
 	}
 
 	user, err := h.UserUseCase.GetByID(userID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
 	userInfo := dto.NewGetUserInfoResponse(user.UserID, user.Email)
 
-	sendOKResponse(w, r, userInfo)
+	sendOKResponse(w, r, http.StatusOK, userInfo)
 
 }
 
@@ -116,16 +114,16 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
 	if err := h.UserUseCase.Delete(userID); err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
-	sendOKResponse(w, r, nil)
+	sendOKResponse(w, r, http.StatusNoContent, nil)
 }
 
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +141,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, "logout is done")
+	sendOKResponse(w, r, http.StatusNoContent, "logout is done")
 
 }
 

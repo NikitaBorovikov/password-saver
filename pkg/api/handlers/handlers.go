@@ -32,7 +32,7 @@ func sendErrorRespose(w http.ResponseWriter, r *http.Request, statusCode int, er
 	render.JSON(w, r, dto.NewErrorResponse(err))
 }
 
-func sendOKResponse(w http.ResponseWriter, r *http.Request, data interface{}) {
-	w.WriteHeader(http.StatusOK)
+func sendOKResponse(w http.ResponseWriter, r *http.Request, statusCode int, data interface{}) {
+	w.WriteHeader(statusCode)
 	render.JSON(w, r, data)
 }

@@ -32,14 +32,14 @@ func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler 
 
 			auth, ok := session.Values[sessionAuthenticated].(bool)
 			if !ok || !auth {
-				sendErrorRespose(w, r, http.StatusForbidden, fmt.Errorf("not authenticated"))
+				sendErrorRespose(w, r, http.StatusUnauthorized, fmt.Errorf("not authenticated"))
 				return
 			}
 
 			userID, ok := session.Values[sessionUserIDKey].(int64)
 			if !ok {
 				err := fmt.Errorf("user ID not found or invalid")
-				sendErrorRespose(w, r, http.StatusForbidden, err)
+				sendErrorRespose(w, r, http.StatusUnauthorized, err)
 				return
 			}
 

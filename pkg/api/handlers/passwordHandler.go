@@ -29,7 +29,7 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
 		return
 	}
 
@@ -44,23 +44,23 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, "password is saved")
+	sendOKResponse(w, r, http.StatusCreated, "password is saved")
 }
 
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
 		return
 	}
 
 	userPasswords, err := h.PasswordUseCase.GetAll(userID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
-	sendOKResponse(w, r, userPasswords)
+	sendOKResponse(w, r, http.StatusOK, userPasswords)
 }
 
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +72,11 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	passwordResponse, err := h.PasswordUseCase.GetByID(passwordID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
-	sendOKResponse(w, r, passwordResponse)
+	sendOKResponse(w, r, http.StatusOK, passwordResponse)
 }
 
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +88,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusUnauthorized, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, "password is updated")
+	sendOKResponse(w, r, http.StatusOK, "password is updated")
 }
 
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -114,11 +114,11 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.PasswordUseCase.Delete(passwordID); err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
 
-	sendOKResponse(w, r, "password is deleted")
+	sendOKResponse(w, r, http.StatusNoContent, "password is deleted")
 }
 
 func decodePasswordRequest(r *http.Request) (*dto.PasswordRequest, error) {
