@@ -73,7 +73,7 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 
@@ -113,8 +113,7 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		err := fmt.Errorf("no userID in context")
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 

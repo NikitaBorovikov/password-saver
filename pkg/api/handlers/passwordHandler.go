@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"password-saver/pkg/dto"
@@ -10,10 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-)
-
-var (
-	errorNotInContext = errors.New("no userID in context")
 )
 
 type PasswordHandler struct {
@@ -29,7 +24,7 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 
@@ -50,7 +45,7 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 
@@ -88,7 +83,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errorNotInContext)
+		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
 		return
 	}
 
@@ -136,7 +131,7 @@ func getPasswordIDFromURL(r *http.Request) (int64, error) {
 
 	passwordIDInt, err := strconv.Atoi(passwordID)
 	if err != nil {
-		return 0, fmt.Errorf("failed to convert str to int")
+		return 0, errStrToIntConversion
 	}
 
 	return int64(passwordIDInt), nil
