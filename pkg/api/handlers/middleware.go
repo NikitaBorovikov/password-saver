@@ -2,17 +2,12 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"password-saver/pkg/api/session"
 
 	"github.com/go-chi/cors"
 )
-
-type contextKey string
-
-const UserIDKey contextKey = "userID"
 
 const (
 	sessionAuthenticated = "authenticated"
@@ -32,18 +27,17 @@ func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler 
 
 			auth, ok := session.Values[sessionAuthenticated].(bool)
 			if !ok || !auth {
-				sendErrorRespose(w, r, http.StatusUnauthorized, fmt.Errorf("not authenticated"))
+				sendErrorRespose(w, r, http.StatusUnauthorized, errorNotAuthenticated)
 				return
 			}
 
 			userID, ok := session.Values[sessionUserIDKey].(int64)
 			if !ok {
-				err := fmt.Errorf("user ID not found or invalid")
-				sendErrorRespose(w, r, http.StatusUnauthorized, err)
+				sendErrorRespose(w, r, http.StatusUnauthorized, errorUserIDNotInSession)
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserIDKey, userID)
+			ctx := context.WithValue(r.Context(), UserIDCtx, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		})

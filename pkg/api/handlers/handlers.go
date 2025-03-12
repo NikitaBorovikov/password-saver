@@ -10,10 +10,16 @@ import (
 	"github.com/go-chi/render"
 )
 
+type contextKey string
+
 type Handlers struct {
 	UserHandler     *UserHandler
 	PasswordHandler *PasswordHandler
 }
+
+const (
+	UserIDCtx contextKey = "userID"
+)
 
 func InitHandlers(uc *usecases.UseCases, session *session.SessionManager) *Handlers {
 	return &Handlers{
@@ -23,7 +29,7 @@ func InitHandlers(uc *usecases.UseCases, session *session.SessionManager) *Handl
 }
 
 func getUserIDFromContext(ctx context.Context) (int64, bool) {
-	userID, ok := ctx.Value(UserIDKey).(int64)
+	userID, ok := ctx.Value(UserIDCtx).(int64)
 	return userID, ok
 }
 
