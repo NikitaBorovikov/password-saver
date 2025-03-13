@@ -1,11 +1,18 @@
 package postgres
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/model"
 
 	"github.com/jmoiron/sqlx"
+)
+
+var (
+	errUserIDNotExists = errors.New("such id doesn't exists")
+	errEmailNotExists  = errors.New("there is no user with this email address")
 )
 
 type UserRepository struct {
@@ -38,6 +45,9 @@ func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
 	var user model.User
 
 	if err := r.db.Get(&user, queryLogIn, q.Email); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errEmailNotExists
+		}
 		return nil, fmt.Errorf("failed to login user: %v", err)
 	}
 
@@ -64,7 +74,12 @@ func (r *UserRepository) Delete(userID int64) error {
 func (r *UserRepository) GetByID(userID int64) (*model.User, error) {
 	var user model.User
 	if err := r.db.Get(&user, queryGetUserByID, userID); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errUserIDNotExists
+		}
+
 		return nil, fmt.Errorf("failed to get user by ID: %v", err)
 	}
+
 	return &user, nil
 }
