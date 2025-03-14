@@ -9,6 +9,7 @@ import (
 func InitRoutes(h handlers.Handlers) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(handlers.CORSMiddleware())
+	r.Use(handlers.LoggingMiddleWare())
 
 	authMiddleware := handlers.AuthMiddleware(h.UserHandler.Session)
 

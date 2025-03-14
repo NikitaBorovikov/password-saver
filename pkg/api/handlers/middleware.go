@@ -7,6 +7,7 @@ import (
 	"password-saver/pkg/api/session"
 
 	"github.com/go-chi/cors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -51,4 +52,19 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	})
+}
+
+func LoggingMiddleWare() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			logrus.WithFields(logrus.Fields{
+				"method": r.Method,
+				"path":   r.URL.Path,
+			}).Info("Incoming request")
+
+			next.ServeHTTP(w, r)
+
+		})
+	}
 }

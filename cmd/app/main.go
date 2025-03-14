@@ -18,14 +18,16 @@ import (
 
 func main() {
 
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
 	cfg, err := config.Init()
 	if err != nil {
-		logrus.Fatalf("config failed to init: %v", err)
+		logrus.Fatalf("failed to init config: %v", err)
 	}
 
 	db, err := db.ConnAndPing(cfg.Postgres)
 	if err != nil {
-		logrus.Fatalf("db failed to connect: %v", err)
+		logrus.Fatalf("failed to connect db: %v", err)
 	}
 	defer db.Close()
 

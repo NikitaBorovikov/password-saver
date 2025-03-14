@@ -32,7 +32,7 @@ func (s *Server) Run() {
 			logrus.Fatal(err)
 		}
 	}()
-	logrus.Printf("Server started on port %s", s.httpServer.Addr)
+	logrus.Infof("Server started on port %s", s.httpServer.Addr)
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
