@@ -28,7 +28,7 @@ type (
 
 	UserRepository interface {
 		Registration(u *User) (int64, error)
-		LogIn(q *dto.LogInRequest) (*User, error)
+		LogIn(q *dto.AuthRequest) (*User, error)
 		Update(u *User) error
 		Delete(userID int64) error
 		GetByID(userID int64) (*User, error)

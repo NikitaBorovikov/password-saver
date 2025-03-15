@@ -47,7 +47,7 @@ func (r *UserRepository) Registration(u *model.User) (int64, error) {
 	return userID, nil
 }
 
-func (r *UserRepository) LogIn(q *dto.LogInRequest) (*model.User, error) {
+func (r *UserRepository) LogIn(q *dto.AuthRequest) (*model.User, error) {
 	var user model.User
 
 	if err := r.db.Get(&user, queryLogIn, q.Email); err != nil {

@@ -21,9 +21,9 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 	}
 }
 
-func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
+func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 
-	if err := validateRegRequest(req); err != nil {
+	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf("failed to validate user: %v", err)
 		return 0, apperrors.ErrValidateUser
 	}
@@ -48,9 +48,9 @@ func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 	return userID, nil
 }
 
-func (uc *UserUseCase) LogIn(req *dto.LogInRequest) (*model.User, error) {
+func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 
-	if err := validateLoginRequest(req); err != nil {
+	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf("failed to validate user: %v", err)
 		return nil, apperrors.ErrValidateUser
 	}
@@ -124,22 +124,10 @@ func (uc *UserUseCase) Delete(userID int64) error {
 	return nil
 }
 
-func validateRegRequest(req *dto.RegRequest) error {
+func validateAuthRequest(req *dto.AuthRequest) error {
 	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func validateLoginRequest(req *dto.LogInRequest) error {
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return err
-	}
-
-	return nil
+	err := validate.Struct(req)
+	return err
 }
 
 func validateUpdateRequest(req *dto.UpdateUserRequest) error {

@@ -27,7 +27,7 @@ func newUserHandler(uc *usecases.UserUseCase, session *session.SessionManager) *
 
 func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
-	req, err := decodeRegRequest(r)
+	req, err := decodeAuthRequest(r)
 	if err != nil {
 		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
@@ -46,7 +46,7 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 
-	req, err := decodeLogInRequest(r)
+	req, err := decodeAuthRequest(r)
 	if err != nil {
 		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
@@ -140,18 +140,8 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func decodeRegRequest(r *http.Request) (*dto.RegRequest, error) {
-	var req dto.RegRequest
-
-	if err := render.DecodeJSON(r.Body, &req); err != nil {
-		return nil, fmt.Errorf("failed to decode request: %v", err)
-	}
-
-	return &req, nil
-}
-
-func decodeLogInRequest(r *http.Request) (*dto.LogInRequest, error) {
-	var req dto.LogInRequest
+func decodeAuthRequest(r *http.Request) (*dto.AuthRequest, error) {
+	var req dto.AuthRequest
 
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
 		return nil, fmt.Errorf("failed to decode request: %v", err)

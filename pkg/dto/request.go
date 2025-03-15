@@ -1,14 +1,9 @@
 package dto
 
 type (
-	RegRequest struct {
+	AuthRequest struct {
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"min=7,max=40"`
-	}
-
-	LogInRequest struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
 	}
 
 	UpdateUserRequest struct {
