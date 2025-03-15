@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-chi/render"
 	"github.com/gorilla/sessions"
-	"github.com/sirupsen/logrus"
 )
 
 type UserHandler struct {
@@ -30,14 +29,12 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	req, err := decodeRegRequest(r)
 	if err != nil {
-		logrus.Error(err)
 		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
 	}
 
 	userID, err := h.UserUseCase.Registration(req)
 	if err != nil {
-		logrus.Error(err)
 		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
 		return
 	}
@@ -51,7 +48,6 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 
 	req, err := decodeLogInRequest(r)
 	if err != nil {
-		logrus.Error(err)
 		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
 	}

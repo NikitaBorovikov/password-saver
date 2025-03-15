@@ -1,20 +1,14 @@
 package usecases
 
 import (
-	"errors"
 	"password-saver/pkg/dto"
+	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/model"
 	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-)
-
-var (
-	errComparePasswords = errors.New("failed compare passwords: incorrected password")
-	errValidateUser     = errors.New("failed to validate user")
-	errHashPassword     = errors.New("failed to hash password")
 )
 
 type UserUseCase struct {
@@ -30,55 +24,50 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 func (uc *UserUseCase) Registration(req *dto.RegRequest) (int64, error) {
 
 	if err := validateRegRequest(req); err != nil {
-		logError(req.Email, err, "failed to validate user")
-		return 0, err
+		logrus.Errorf("failed to validate user: %v", err)
+		return 0, apperrors.ErrValidateUser
 	}
 
 	hashPassword, err := hashPassword(req.Password)
 	if err != nil {
-		logError(req.Email, err, "failed to hash password")
-		return 0, err
+		logrus.Errorf("failed to hash password: %v", err)
+		return 0, apperrors.ErrHashPassword
 	}
 
-	user := &model.User{
-		Email:        req.Email,
-		HashPassword: hashPassword,
-		RegDate:      getTodayDate(),
-	}
+	regDate := getTodayDate()
+
+	user := newUser(0, req.Email, hashPassword, regDate)
 
 	userID, err := uc.UserRepository.Registration(user)
 	if err != nil {
-		logError(req.Email, err, "failed to save user")
-		return 0, err
+		return 0, handleRepositoryError(err, req.Email)
 	}
 
-	logInfo(userID, "user was registered successfully")
+	logrus.Infof("user was registated successfully with id = %d", userID)
 
 	return userID, nil
-
 }
 
 func (uc *UserUseCase) LogIn(req *dto.LogInRequest) (*model.User, error) {
 
 	if err := validateLoginRequest(req); err != nil {
-		logError(req.Email, err, "failed to validate user")
-		return nil, err
+		logrus.Errorf("failed to validate user: %v", err)
+		return nil, apperrors.ErrValidateUser
 	}
 
 	user, err := uc.UserRepository.LogIn(req)
 	if err != nil {
-		logError(req.Email, err, "failed to login user")
-		return nil, err
+		return nil, handleRepositoryError(err, req.Email)
 	}
 
 	if !comparePassword(req.Password, user.HashPassword) {
-		logError(req.Email, errComparePasswords, "failed compare passwords")
-		return nil, errComparePasswords
+		logrus.Errorf("failed to compare passwords: %v", err)
+		return nil, apperrors.ErrComparePasswords
 	}
 
 	sanitizeUserStruct(user)
 
-	logInfo(user.UserID, "successful login")
+	logrus.Infof("user {id = %d} was lodin successfully", user.UserID)
 
 	return user, nil
 }
@@ -87,32 +76,30 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		logErrorWithID(userID, err, "failed to get user by ID")
-		return err
+		return handleRepositoryError(err, userID)
 	}
 
 	if err := validateUpdateRequest(req); err != nil {
-		logErrorWithID(userID, err, "failed to validate user")
-		return err
+		logrus.Errorf("failed to validate user: %v", err)
+		return apperrors.ErrValidateUser
 	}
 
 	if !comparePassword(req.OldPassword, user.HashPassword) {
-		logErrorWithID(userID, err, "failed to compare passwords")
-		return errComparePasswords
+		logrus.Errorf("failed to compare passwords: %v", err)
+		return apperrors.ErrComparePasswords
 	}
 
 	user.HashPassword, err = hashPassword(req.NewPassword)
 	if err != nil {
-		logErrorWithID(userID, err, "failed to hash password")
-		return err
+		logrus.Errorf("failed to hash password: %v", err)
+		return apperrors.ErrHashPassword
 	}
 
 	if err := uc.UserRepository.Update(user); err != nil {
-		logErrorWithID(userID, err, "failed to update user")
-		return err
+		return handleRepositoryError(err, userID)
 	}
 
-	logInfo(user.UserID, "user was updated successfully")
+	logrus.Infof("user {id = %d} was updated successfully", user.UserID)
 
 	return nil
 }
@@ -120,21 +107,20 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		logErrorWithID(userID, err, "failed to get user by ID")
-		return nil, err
+		return nil, handleRepositoryError(err, userID)
 	}
 	sanitizeUserStruct(user)
-	logInfo(userID, "successful get by ID")
+
+	logrus.Info("successfull getting by id")
 	return user, nil
 }
 
 func (uc *UserUseCase) Delete(userID int64) error {
 	if err := uc.UserRepository.Delete(userID); err != nil {
-		logErrorWithID(userID, err, "failed to delete user")
-		return err
+		return handleRepositoryError(err, userID)
 	}
 
-	logInfo(userID, "user was deleted successfully")
+	logrus.Infof("user {id = %d} was deleted successfully", userID)
 	return nil
 }
 
@@ -150,7 +136,7 @@ func validateRegRequest(req *dto.RegRequest) error {
 func validateLoginRequest(req *dto.LogInRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return errValidateUser
+		return err
 	}
 
 	return nil
@@ -159,7 +145,7 @@ func validateLoginRequest(req *dto.LogInRequest) error {
 func validateUpdateRequest(req *dto.UpdateUserRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return errValidateUser
+		return err
 	}
 
 	return nil
@@ -173,7 +159,7 @@ func hashPassword(inputPassword string) (string, error) {
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(inputPassword), bcrypt.DefaultCost)
 	if err != nil {
-		return "", errHashPassword
+		return "", err
 	}
 
 	return string(hashPassword), nil
@@ -190,22 +176,27 @@ func sanitizeUserStruct(u *model.User) {
 	u.HashPassword = ""
 }
 
-func logInfo(userID int64, msg string) {
-	logrus.WithFields(logrus.Fields{
-		"userID": userID,
-	}).Info(msg)
+func newUser(userID int64, email, hashPassword, regDate string) *model.User {
+	return &model.User{
+		UserID:       userID,
+		Email:        email,
+		HashPassword: hashPassword,
+		RegDate:      regDate,
+	}
 }
 
-func logError(email string, err error, msg string) {
-	logrus.WithFields(logrus.Fields{
-		"email": email,
-		"error": err,
-	}).Error(msg)
-}
+func handleRepositoryError(err error, data interface{}) error {
+	switch err {
+	case apperrors.ErrUserNotFound:
+		logrus.Errorf("userID: %d %v", data, err)
+		return apperrors.ErrUserNotFound
 
-func logErrorWithID(userID int64, err error, msg string) {
-	logrus.WithFields(logrus.Fields{
-		"email": userID,
-		"error": err,
-	}).Error(msg)
+	case apperrors.ErrDuplicateUser:
+		logrus.Errorf("email: %s %v", data, err)
+		return apperrors.ErrDuplicateUser
+
+	default:
+		logrus.Errorf("internal database error: %v", err)
+		return apperrors.ErrDatabaseInternal
+	}
 }
