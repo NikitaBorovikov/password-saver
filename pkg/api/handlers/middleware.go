@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"password-saver/pkg/api/session"
+	apperrors "password-saver/pkg/errors"
 
 	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"
@@ -21,20 +21,22 @@ func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			session, err := sm.Store.Get(r, sm.Name)
 			if err != nil || session == nil {
-				log.Printf("Failed to get session: %v", err)
-				sendErrorRespose(w, r, http.StatusInternalServerError, err)
+				logrus.Errorf("failed to get session: %v", err)
+				sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 				return
 			}
 
 			auth, ok := session.Values[sessionAuthenticated].(bool)
 			if !ok || !auth {
-				sendErrorRespose(w, r, http.StatusUnauthorized, errorNotAuthenticated)
+				logrus.Error("user is unauthenticated")
+				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
 				return
 			}
 
 			userID, ok := session.Values[sessionUserIDKey].(int64)
 			if !ok {
-				sendErrorRespose(w, r, http.StatusUnauthorized, errorUserIDNotInSession)
+				logrus.Error("userID not in session")
+				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
 				return
 			}
 

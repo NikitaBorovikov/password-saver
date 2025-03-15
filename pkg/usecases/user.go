@@ -43,8 +43,6 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 		return 0, handleRepositoryError(err, req.Email)
 	}
 
-	logrus.Infof("user was registated successfully with id = %d", userID)
-
 	return userID, nil
 }
 
@@ -66,8 +64,6 @@ func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 	}
 
 	sanitizeUserStruct(user)
-
-	logrus.Infof("user {id = %d} was lodin successfully", user.UserID)
 
 	return user, nil
 }
@@ -99,8 +95,6 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 		return handleRepositoryError(err, userID)
 	}
 
-	logrus.Infof("user {id = %d} was updated successfully", user.UserID)
-
 	return nil
 }
 
@@ -111,7 +105,6 @@ func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 	}
 	sanitizeUserStruct(user)
 
-	logrus.Info("successfull getting by id")
 	return user, nil
 }
 
@@ -120,7 +113,6 @@ func (uc *UserUseCase) Delete(userID int64) error {
 		return handleRepositoryError(err, userID)
 	}
 
-	logrus.Infof("user {id = %d} was deleted successfully", userID)
 	return nil
 }
 

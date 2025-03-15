@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"password-saver/pkg/dto"
+	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/usecases"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/sirupsen/logrus"
 )
 
 type PasswordHandler struct {
@@ -24,13 +25,15 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
+		logrus.Error("failed to get userID from context")
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		logrus.Errorf("failed to decode request: %v", err)
+		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
 		return
 	}
 
@@ -40,12 +43,15 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, http.StatusCreated, "password is saved")
+
+	logrus.Info("password was saved sucessfully")
 }
 
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
+		logrus.Error("failed to get userID from context")
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
 
@@ -56,12 +62,15 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, http.StatusOK, userPasswords)
+
+	logrus.Info("passwords was given sucessfully")
 }
 
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		logrus.Error("failed to get passwordID from url")
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrInvalidURLParam)
 		return
 	}
 
@@ -72,6 +81,8 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, http.StatusOK, passwordResponse)
+
+	logrus.Info("password was given sucessfully")
 }
 
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -83,13 +94,15 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		sendErrorRespose(w, r, http.StatusInternalServerError, errUserIDNotInContext)
+		logrus.Error("failed to get userID from context")
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		logrus.Errorf("failed to decode request: %v", err)
+		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
 		return
 	}
 
@@ -99,12 +112,15 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, http.StatusOK, "password is updated")
+
+	logrus.Info("passwords was updated sucessfully")
 }
 
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		logrus.Error("failed to get passwordID from url")
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrInvalidURLParam)
 		return
 	}
 
@@ -114,13 +130,15 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendOKResponse(w, r, http.StatusNoContent, "password is deleted")
+
+	logrus.Info("passwords was deleted sucessfully")
 }
 
 func decodePasswordRequest(r *http.Request) (*dto.PasswordRequest, error) {
 	var req dto.PasswordRequest
 
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
-		return nil, fmt.Errorf("failed to decode request: %v", err)
+		return nil, err
 	}
 
 	return &req, nil
@@ -131,7 +149,7 @@ func getPasswordIDFromURL(r *http.Request) (int64, error) {
 
 	passwordIDInt, err := strconv.Atoi(passwordID)
 	if err != nil {
-		return 0, errStrToIntConversion
+		return 0, err
 	}
 
 	return int64(passwordIDInt), nil
