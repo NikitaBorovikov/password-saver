@@ -4,13 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/model"
 
 	"github.com/jmoiron/sqlx"
-)
-
-var (
-	errPasswordIDNotExists = errors.New("there is no password with this id")
 )
 
 type PasswordRepository struct {
@@ -45,8 +42,8 @@ func (r *PasswordRepository) GetAll(userID int64) ([]model.Password, error) {
 func (r *PasswordRepository) GetByID(passwordID int64) (*model.Password, error) {
 	var password model.Password
 	if err := r.db.Get(&password, queryGetPasswordByID, passwordID); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errPasswordIDNotExists
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperrors.ErrPasswordNotExists
 		}
 
 		return nil, fmt.Errorf("failed to get password by ID: %v", err)
@@ -58,8 +55,8 @@ func (r *PasswordRepository) GetByID(passwordID int64) (*model.Password, error) 
 func (r *PasswordRepository) Update(p *model.Password) error {
 	_, err := r.db.NamedExec(queryUpdatePassword, p)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errPasswordIDNotExists
+		if errors.Is(err, sql.ErrNoRows) {
+			return apperrors.ErrPasswordNotExists
 		}
 
 		return fmt.Errorf("failed to update password: %v", err)
@@ -70,8 +67,8 @@ func (r *PasswordRepository) Update(p *model.Password) error {
 func (r *PasswordRepository) Delete(passwordID int64) error {
 	_, err := r.db.Exec(queryDelPassword, passwordID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return errPasswordIDNotExists
+		if errors.Is(err, sql.ErrNoRows) {
+			return apperrors.ErrPasswordNotExists
 		}
 		return fmt.Errorf("failed to delete password: %v", err)
 	}

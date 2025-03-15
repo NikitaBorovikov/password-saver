@@ -40,7 +40,7 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 
 	userID, err := uc.UserRepository.Registration(user)
 	if err != nil {
-		return 0, handleRepositoryError(err, req.Email)
+		return 0, handleUserRepositoryError(err, req.Email)
 	}
 
 	return userID, nil
@@ -55,7 +55,7 @@ func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 
 	user, err := uc.UserRepository.LogIn(req)
 	if err != nil {
-		return nil, handleRepositoryError(err, req.Email)
+		return nil, handleUserRepositoryError(err, req.Email)
 	}
 
 	if !comparePassword(req.Password, user.HashPassword) {
@@ -72,7 +72,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		return handleRepositoryError(err, userID)
+		return handleUserRepositoryError(err, userID)
 	}
 
 	if err := validateUpdateRequest(req); err != nil {
@@ -92,7 +92,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 	}
 
 	if err := uc.UserRepository.Update(user); err != nil {
-		return handleRepositoryError(err, userID)
+		return handleUserRepositoryError(err, userID)
 	}
 
 	return nil
@@ -101,7 +101,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		return nil, handleRepositoryError(err, userID)
+		return nil, handleUserRepositoryError(err, userID)
 	}
 	sanitizeUserStruct(user)
 
@@ -110,7 +110,7 @@ func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 
 func (uc *UserUseCase) Delete(userID int64) error {
 	if err := uc.UserRepository.Delete(userID); err != nil {
-		return handleRepositoryError(err, userID)
+		return handleUserRepositoryError(err, userID)
 	}
 
 	return nil
@@ -165,7 +165,7 @@ func newUser(userID int64, email, hashPassword, regDate string) *model.User {
 	}
 }
 
-func handleRepositoryError(err error, data interface{}) error {
+func handleUserRepositoryError(err error, data interface{}) error {
 	switch err {
 	case apperrors.ErrUserNotFound:
 		logrus.Errorf("userID: %d %v", data, err)

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"password-saver/pkg/config"
 	"password-saver/pkg/dto"
+	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
 
 	"github.com/go-playground/validator"
+	"github.com/sirupsen/logrus"
 )
 
 type PasswordUseCase struct {
@@ -26,18 +28,20 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 
 	if err := validateForSavePassword(req); err != nil {
-		return err
+		logrus.Errorf("failed to validate password: %v", err)
+		return apperrors.ErrValidatePassword
 	}
 
 	encPassword, encService, err := uc.encryptFields(req)
 	if err != nil {
-		return err
+		logrus.Error(err)
+		return apperrors.ErrServerInternal
 	}
 
 	password := newPassword(0, userID, encPassword, encService)
 
 	if err := uc.PasswordRepository.Save(password); err != nil {
-		return err
+		return handlerPasswordRepositoryError(err)
 	}
 	return nil
 }
@@ -45,12 +49,12 @@ func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) {
 	userPasswords, err := uc.PasswordRepository.GetAll(userID)
 	if err != nil {
-		return nil, err
+		return nil, handlerPasswordRepositoryError(err)
 	}
 
 	passwordResponse, err := uc.makePasswordResponse(userPasswords)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.ErrServerInternal
 	}
 
 	return passwordResponse, nil
@@ -59,12 +63,12 @@ func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) 
 func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, error) {
 	userPassword, err := uc.PasswordRepository.GetByID(passwordID)
 	if err != nil {
-		return nil, err
+		return nil, handlerPasswordRepositoryError(err)
 	}
 
 	passwordResponse, err := uc.decryptFields(*userPassword)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.ErrServerInternal
 	}
 
 	return passwordResponse, nil
@@ -73,26 +77,30 @@ func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, err
 func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID int64) error {
 
 	if err := validateForUpdatePassword(req); err != nil {
-		return err
+		logrus.Errorf("failed to validate password: %v", err)
+		return apperrors.ErrValidatePassword
 	}
 
 	encPassword, encService, err := uc.encryptFields(req)
 	if err != nil {
-		return err
+		logrus.Error(err)
+		return apperrors.ErrServerInternal
 	}
 
 	password := newPassword(passwordID, userID, encPassword, encService)
 
 	if err := uc.PasswordRepository.Update(password); err != nil {
-		return err
+		return handlerPasswordRepositoryError(err)
 	}
 
 	return nil
 }
 
 func (uc *PasswordUseCase) Delete(passwordID int64) error {
-	err := uc.PasswordRepository.Delete(passwordID)
-	return err
+	if err := uc.PasswordRepository.Delete(passwordID); err != nil {
+		return handlerPasswordRepositoryError(err)
+	}
+	return nil
 }
 
 func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {
@@ -133,12 +141,12 @@ func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.Password
 
 	passwordResponse.Password, err = decryptData(password.EncPassword, uc.cfg.EncPasswordKey)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decrypt password: %v", err)
 	}
 
 	passwordResponse.Service, err = decryptData(password.EncService, uc.cfg.EncServiceKey)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decrypt service: %v", err)
 	}
 
 	return &passwordResponse, nil
@@ -146,18 +154,14 @@ func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.Password
 
 func validateForSavePassword(req *dto.PasswordRequest) error {
 	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return fmt.Errorf("failed to validate password struct: %v", err)
-	}
-	return nil
+	err := validate.Struct(req)
+	return err
 }
 
 func validateForUpdatePassword(req *dto.PasswordRequest) error {
 	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return fmt.Errorf("failed to validate password struct: %v", err)
-	}
-	return nil
+	err := validate.Struct(req)
+	return err
 }
 
 func decryptData(encData string, encKey string) (string, error) {
@@ -180,5 +184,16 @@ func newPassword(passwordID, userID int64, encPassword, encService string) *mode
 		UserID:      userID,
 		EncPassword: encPassword,
 		EncService:  encService,
+	}
+}
+
+func handlerPasswordRepositoryError(err error) error {
+	switch err {
+	case apperrors.ErrPasswordNotExists:
+		logrus.Error(err)
+		return apperrors.ErrPasswordNotExists
+	default:
+		logrus.Errorf("internal database error: %v", err)
+		return apperrors.ErrDatabaseInternal
 	}
 }

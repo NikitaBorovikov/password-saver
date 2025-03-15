@@ -13,4 +13,7 @@ var (
 	ErrServerInternal   = errors.New("internal servr error")
 	ErrNotAuthenticated = errors.New("user is not authenticated")
 	ErrInvalidURLParam  = errors.New("invalid URL param")
+
+	ErrPasswordNotExists = errors.New("password not exists")
+	ErrValidatePassword  = errors.New("failed to validate password")
 )
