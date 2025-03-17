@@ -9,10 +9,18 @@ var (
 	ErrDatabaseInternal = errors.New("internal database error")
 )
 
-// Validation errors
+// User validation errors
 var (
-	ErrValidateUser     = errors.New("failed to validate user data")
-	ErrValidatePassword = errors.New("failed to validate password")
+	ErrValidateUser             = errors.New("failed to validate user data")
+	ErrValidateEmailField       = errors.New("failed to validate email: the email fiels is required and must be an email address")
+	ErrValidatePasswordField    = errors.New("failed to validate user password: password fiels is required and must be between 7 and 40 characters long")
+	ErrValidateOldPasswordField = errors.New("failed to validate old password: the old password field is required")
+	ErrValidateNewPasswordFiels = errors.New("failed to validate new password: the new password fiels is required and must be between 7 and 40 characters long")
+)
+
+// Password validation errors
+var (
+	ErrValidatePassword = errors.New("failed to validate password data")
 )
 
 // Auth errors

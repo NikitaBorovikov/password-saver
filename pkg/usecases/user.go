@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"password-saver/pkg/dto"
 	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/model"
@@ -25,7 +26,7 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 
 	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf("failed to validate user: %v", err)
-		return 0, apperrors.ErrValidateUser
+		return 0, err
 	}
 
 	hashPassword, err := hashPassword(req.Password)
@@ -118,17 +119,58 @@ func (uc *UserUseCase) Delete(userID int64) error {
 
 func validateAuthRequest(req *dto.AuthRequest) error {
 	validate := validator.New()
-	err := validate.Struct(req)
-	return err
+
+	if err := validate.Struct(req); err != nil {
+		return handleValidateAuthErrors(err)
+	}
+	return nil
 }
 
 func validateUpdateRequest(req *dto.UpdateUserRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return err
+		return handleValidateUpdateUserError(err)
 	}
 
 	return nil
+}
+
+func handleValidateAuthErrors(err error) error {
+	var validateErrs validator.ValidationErrors
+
+	if !errors.As(err, &validateErrs) {
+		return apperrors.ErrValidateUser
+	}
+
+	for _, e := range validateErrs {
+
+		switch e.Field() {
+		case "Email":
+			return apperrors.ErrValidateEmailField
+		case "Password":
+			return apperrors.ErrValidatePasswordField
+		}
+	}
+	return apperrors.ErrValidateUser
+}
+
+func handleValidateUpdateUserError(err error) error {
+	var validateErrs validator.ValidationErrors
+
+	if !errors.As(err, &validateErrs) {
+		return apperrors.ErrValidateUser
+	}
+
+	for _, e := range validateErrs {
+
+		switch e.Field() {
+		case "OldPassword":
+			return apperrors.ErrValidateOldPasswordField
+		case "NewPassword":
+			return apperrors.ErrValidateNewPasswordFiels
+		}
+	}
+	return apperrors.ErrValidateUser
 }
 
 func getTodayDate() string {
