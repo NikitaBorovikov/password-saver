@@ -51,7 +51,7 @@ func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 
 	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf("failed to validate user: %v", err)
-		return nil, apperrors.ErrValidateUser
+		return nil, err
 	}
 
 	user, err := uc.UserRepository.LogIn(req)
@@ -78,7 +78,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 
 	if err := validateUpdateRequest(req); err != nil {
 		logrus.Errorf("failed to validate user: %v", err)
-		return apperrors.ErrValidateUser
+		return err
 	}
 
 	if !comparePassword(req.OldPassword, user.HashPassword) {
@@ -148,7 +148,7 @@ func handleValidateAuthErrors(err error) error {
 		case "Email":
 			return apperrors.ErrValidateEmailField
 		case "Password":
-			return apperrors.ErrValidatePasswordField
+			return apperrors.ErrValidateUserPasswordField
 		}
 	}
 	return apperrors.ErrValidateUser
@@ -167,7 +167,7 @@ func handleValidateUpdateUserError(err error) error {
 		case "OldPassword":
 			return apperrors.ErrValidateOldPasswordField
 		case "NewPassword":
-			return apperrors.ErrValidateNewPasswordFiels
+			return apperrors.ErrValidateNewPasswordField
 		}
 	}
 	return apperrors.ErrValidateUser

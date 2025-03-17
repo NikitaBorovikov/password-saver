@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"password-saver/pkg/config"
 	"password-saver/pkg/dto"
@@ -27,9 +28,9 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 
 func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 
-	if err := validateForSavePassword(req); err != nil {
+	if err := validateForPassword(req); err != nil {
 		logrus.Errorf("failed to validate password: %v", err)
-		return apperrors.ErrValidatePassword
+		return err
 	}
 
 	encPassword, encService, err := uc.encryptFields(req)
@@ -76,9 +77,9 @@ func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, err
 
 func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID int64) error {
 
-	if err := validateForUpdatePassword(req); err != nil {
+	if err := validateForPassword(req); err != nil {
 		logrus.Errorf("failed to validate password: %v", err)
-		return apperrors.ErrValidatePassword
+		return err
 	}
 
 	encPassword, encService, err := uc.encryptFields(req)
@@ -152,16 +153,32 @@ func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.Password
 	return &passwordResponse, nil
 }
 
-func validateForSavePassword(req *dto.PasswordRequest) error {
+func validateForPassword(req *dto.PasswordRequest) error {
 	validate := validator.New()
-	err := validate.Struct(req)
-	return err
+	if err := validate.Struct(req); err != nil {
+		return handleValidatePasswordErrors(err)
+	}
+	return nil
 }
 
-func validateForUpdatePassword(req *dto.PasswordRequest) error {
-	validate := validator.New()
-	err := validate.Struct(req)
-	return err
+func handleValidatePasswordErrors(err error) error {
+	var validateErrs validator.ValidationErrors
+
+	if !errors.As(err, &validateErrs) {
+		return apperrors.ErrValidatePassword
+	}
+
+	for _, e := range validateErrs {
+
+		switch e.Field() {
+		case "Service":
+			return apperrors.ErrValidateServiceField
+		case "Password":
+			return apperrors.ErrValidateSavePasswordField
+		}
+	}
+
+	return apperrors.ErrValidatePassword
 }
 
 func decryptData(encData string, encKey string) (string, error) {
