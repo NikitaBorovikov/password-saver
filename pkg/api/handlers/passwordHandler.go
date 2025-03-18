@@ -142,9 +142,10 @@ func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password, err := h.PasswordUseCase.Generate(ps.length, ps.useSpecialSymbols)
+	password, err := h.PasswordUseCase.Generate(ps)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
 	}
 
 	sendOKResponse(w, r, http.StatusOK, password)
@@ -153,12 +154,7 @@ func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type passwordSettings struct {
-	length            int
-	useSpecialSymbols bool
-}
-
-func getPasswordSettingsFromURL(r *http.Request) (*passwordSettings, error) {
+func getPasswordSettingsFromURL(r *http.Request) (*dto.GeneratePasswordRequest, error) {
 	lenStr := r.URL.Query().Get("len")
 	len, err := strconv.Atoi(lenStr)
 	if err != nil {
@@ -168,9 +164,9 @@ func getPasswordSettingsFromURL(r *http.Request) (*passwordSettings, error) {
 	useSpecialStr := r.URL.Query().Get("special")
 	useSpecial := useSpecialStr == "true"
 
-	ps := &passwordSettings{
-		length:            len,
-		useSpecialSymbols: useSpecial,
+	ps := &dto.GeneratePasswordRequest{
+		Length:            len,
+		UseSpecialSymbols: useSpecial,
 	}
 
 	return ps, nil

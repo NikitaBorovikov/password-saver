@@ -23,6 +23,7 @@ var (
 	ErrValidatePassword          = errors.New("failed to validate password data")
 	ErrValidateServiceField      = errors.New("failed to validate service: the service field must be between 1 and 100 characters long")
 	ErrValidateSavePasswordField = errors.New("failed to validate password: the password field must be between 1 and 100 characters long")
+	ErrValidateLengthPassword    = errors.New("failed to validate length: length mus be between 5 and 100")
 )
 
 // Auth errors

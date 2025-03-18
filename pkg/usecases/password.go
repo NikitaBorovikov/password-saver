@@ -10,8 +10,16 @@ import (
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
 
+	"math/rand"
+
 	"github.com/go-playground/validator"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	letters  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	digits   = "0123456789"
+	specials = "!@#$%^&*()_+"
 )
 
 type PasswordUseCase struct {
@@ -104,8 +112,27 @@ func (uc *PasswordUseCase) Delete(passwordID int64) error {
 	return nil
 }
 
-func (uc *PasswordUseCase) Generate(len int, useSpecialSymbols bool) (string, error) {
-	return "", nil
+func (uc *PasswordUseCase) Generate(ps *dto.GeneratePasswordRequest) (string, error) {
+
+	if err := validateGenPasswordSettings(ps); err != nil {
+		logrus.Errorf("failed to validate password settings: %v", err)
+		return "", apperrors.ErrValidateLengthPassword
+	}
+
+	var charSet string
+
+	if ps.UseSpecialSymbols {
+		charSet = letters + digits + specials
+	} else {
+		charSet = letters + digits
+	}
+
+	password := make([]byte, ps.Length)
+	for i := range password {
+		password[i] = charSet[rand.Intn(len(charSet))]
+	}
+
+	return string(password), nil
 }
 
 func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {
@@ -165,6 +192,14 @@ func validateForPassword(req *dto.PasswordRequest) error {
 	return nil
 }
 
+func validateGenPasswordSettings(req *dto.GeneratePasswordRequest) error {
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return handleValidatePasswordErrors(err)
+	}
+	return nil
+}
+
 func handleValidatePasswordErrors(err error) error {
 	var validateErrs validator.ValidationErrors
 
@@ -179,6 +214,8 @@ func handleValidatePasswordErrors(err error) error {
 			return apperrors.ErrValidateServiceField
 		case "Password":
 			return apperrors.ErrValidateSavePasswordField
+		case "Length":
+			return apperrors.ErrValidateLengthPassword
 		}
 	}
 
