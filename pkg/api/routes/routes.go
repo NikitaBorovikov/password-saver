@@ -42,6 +42,7 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 }
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
+	r.Get("/gen", h.Generate)
 	r.Post("/", h.Save)
 	r.Get("/", h.GetAll)
 

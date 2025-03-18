@@ -104,6 +104,10 @@ func (uc *PasswordUseCase) Delete(passwordID int64) error {
 	return nil
 }
 
+func (uc *PasswordUseCase) Generate(len int, useSpecialSymbols bool) (string, error) {
+	return "", nil
+}
+
 func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {
 	passwordResponse := make([]dto.PasswordResponse, 0, len(userPasswords))
 
