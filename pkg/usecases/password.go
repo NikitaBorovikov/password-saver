@@ -9,17 +9,10 @@ import (
 	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
-
-	"math/rand"
+	"password-saver/pkg/usecases/generation"
 
 	"github.com/go-playground/validator"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	letters  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	digits   = "0123456789"
-	specials = "!@#$%^&*()_+"
 )
 
 type PasswordUseCase struct {
@@ -119,20 +112,9 @@ func (uc *PasswordUseCase) Generate(ps *dto.GeneratePasswordRequest) (string, er
 		return "", apperrors.ErrValidateLengthPassword
 	}
 
-	var charSet string
+	password := generation.GenNewPassword(ps)
 
-	if ps.UseSpecialSymbols {
-		charSet = letters + digits + specials
-	} else {
-		charSet = letters + digits
-	}
-
-	password := make([]byte, ps.Length)
-	for i := range password {
-		password[i] = charSet[rand.Intn(len(charSet))]
-	}
-
-	return string(password), nil
+	return password, nil
 }
 
 func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {

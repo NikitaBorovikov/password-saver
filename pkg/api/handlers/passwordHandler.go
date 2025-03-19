@@ -151,7 +151,6 @@ func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, http.StatusOK, password)
 
 	logrus.Info("new password was generated successfully")
-
 }
 
 func getPasswordSettingsFromURL(r *http.Request) (*dto.GeneratePasswordRequest, error) {
