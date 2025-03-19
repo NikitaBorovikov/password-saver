@@ -7,6 +7,7 @@ import (
 	"password-saver/pkg/config"
 	"password-saver/pkg/dto"
 	apperrors "password-saver/pkg/errors"
+	"password-saver/pkg/logs"
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
 	"password-saver/pkg/usecases/generation"
@@ -30,7 +31,7 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 
 	if err := validateForPassword(req); err != nil {
-		logrus.Errorf("failed to validate password: %v", err)
+		logrus.Errorf(logs.FailedToValidatePassword, err)
 		return err
 	}
 
@@ -81,7 +82,7 @@ func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, err
 func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID int64) error {
 
 	if err := validateForPassword(req); err != nil {
-		logrus.Errorf("failed to validate password: %v", err)
+		logrus.Errorf(logs.FailedToValidatePassword, err)
 		return err
 	}
 
@@ -110,7 +111,7 @@ func (uc *PasswordUseCase) Delete(passwordID int64) error {
 func (uc *PasswordUseCase) Generate(ps *dto.GeneratePasswordRequest) (string, error) {
 
 	if err := validateGenPasswordSettings(ps); err != nil {
-		logrus.Errorf("failed to validate password settings: %v", err)
+		logrus.Errorf(logs.FailedToValidatePasswordSettings, err)
 		return "", apperrors.ErrValidateLengthPassword
 	}
 
@@ -236,7 +237,7 @@ func handlerPasswordRepositoryError(err error) error {
 		logrus.Error(err)
 		return apperrors.ErrPasswordNotExists
 	default:
-		logrus.Errorf("internal database error: %v", err)
+		logrus.Errorf(logs.InternalDBError, err)
 		return apperrors.ErrDatabaseInternal
 	}
 }

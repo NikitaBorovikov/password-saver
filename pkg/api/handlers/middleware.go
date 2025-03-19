@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"password-saver/pkg/api/session"
 	apperrors "password-saver/pkg/errors"
+	"password-saver/pkg/logs"
 
 	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"
@@ -21,21 +22,21 @@ func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			session, err := sm.Store.Get(r, sm.Name)
 			if err != nil || session == nil {
-				logrus.Errorf("failed to get session: %v", err)
+				logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
 				sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 				return
 			}
 
 			auth, ok := session.Values[sessionAuthenticated].(bool)
 			if !ok || !auth {
-				logrus.Error("user is unauthenticated")
+				logrus.Error(logs.UnauthenticatedUser)
 				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
 				return
 			}
 
 			userID, ok := session.Values[sessionUserIDKey].(int64)
 			if !ok {
-				logrus.Error("userID not in session")
+				logrus.Error(logs.FailedToGetUserIDFromSession)
 				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
 				return
 			}

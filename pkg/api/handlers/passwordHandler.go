@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"password-saver/pkg/dto"
 	apperrors "password-saver/pkg/errors"
+	"password-saver/pkg/logs"
 	"password-saver/pkg/usecases"
 	"strconv"
 
@@ -25,14 +26,14 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		logrus.Error("failed to get userID from context")
+		logrus.Error(logs.FailedToGetUserIDFromCtx)
 		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
-		logrus.Errorf("failed to decode request: %v", err)
+		logrus.Errorf(logs.FailedToDecodeRequest, err)
 		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
 		return
 	}
@@ -44,13 +45,13 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusCreated, nil)
 
-	logrus.Info("password was saved sucessfully")
+	logrus.Info(logs.PasswordSavedSuccessfully)
 }
 
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		logrus.Error("failed to get userID from context")
+		logrus.Error(logs.FailedToGetUserIDFromCtx)
 		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
@@ -63,13 +64,13 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusOK, userPasswords)
 
-	logrus.Info("passwords was given sucessfully")
+	logrus.Info(logs.PasswordsGivenSuccessfully)
 }
 
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
-		logrus.Error("failed to get passwordID from url")
+		logrus.Error(logs.FailedToGetPasswordIDFromURL)
 		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrInvalidURLParam)
 		return
 	}
@@ -82,7 +83,7 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusOK, passwordResponse)
 
-	logrus.Info("password was given sucessfully")
+	logrus.Info(logs.PasswordsGivenSuccessfully)
 }
 
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -94,14 +95,14 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
-		logrus.Error("failed to get userID from context")
+		logrus.Error(logs.FailedToGetUserIDFromCtx)
 		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
-		logrus.Errorf("failed to decode request: %v", err)
+		logrus.Errorf(logs.FailedToDecodeRequest, err)
 		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
 		return
 	}
@@ -113,13 +114,13 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusOK, nil)
 
-	logrus.Info("passwords was updated sucessfully")
+	logrus.Info(logs.PasswordUpdatedSuccessfully)
 }
 
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
-		logrus.Error("failed to get passwordID from url")
+		logrus.Error(logs.FailedToGetPasswordIDFromURL)
 		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
 		return
 	}
@@ -131,13 +132,13 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusNoContent, nil)
 
-	logrus.Info("passwords was deleted sucessfully")
+	logrus.Info(logs.PasswordDeletedSuccessfully)
 }
 
 func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	ps, err := getPasswordSettingsFromURL(r)
 	if err != nil {
-		logrus.Errorf("failed to get password setting for geneating from URL: %v", err)
+		logrus.Errorf(logs.FailedToGetPasswordSettings, err)
 		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
 		return
 	}
@@ -150,7 +151,7 @@ func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 
 	sendOKResponse(w, r, http.StatusOK, password)
 
-	logrus.Info("new password was generated successfully")
+	logrus.Info(logs.PasswordGeneratedSuccessfully)
 }
 
 func getPasswordSettingsFromURL(r *http.Request) (*dto.GeneratePasswordRequest, error) {

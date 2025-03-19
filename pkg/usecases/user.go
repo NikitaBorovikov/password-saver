@@ -4,6 +4,7 @@ import (
 	"errors"
 	"password-saver/pkg/dto"
 	apperrors "password-saver/pkg/errors"
+	"password-saver/pkg/logs"
 	"password-saver/pkg/model"
 	"time"
 
@@ -25,13 +26,13 @@ func NewUserUseCase(ur model.UserRepository) *UserUseCase {
 func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 
 	if err := validateAuthRequest(req); err != nil {
-		logrus.Errorf("failed to validate user: %v", err)
+		logrus.Errorf(logs.FailedToValidateUser, err)
 		return 0, err
 	}
 
 	hashPassword, err := hashPassword(req.Password)
 	if err != nil {
-		logrus.Errorf("failed to hash password: %v", err)
+		logrus.Errorf(logs.FailedToHashPassword, err)
 		return 0, apperrors.ErrHashPassword
 	}
 
@@ -50,7 +51,7 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 
 	if err := validateAuthRequest(req); err != nil {
-		logrus.Errorf("failed to validate user: %v", err)
+		logrus.Errorf(logs.FailedToValidateUser, err)
 		return nil, err
 	}
 
@@ -60,7 +61,7 @@ func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 	}
 
 	if !comparePassword(req.Password, user.HashPassword) {
-		logrus.Errorf("failed to compare passwords: %v", err)
+		logrus.Errorf(logs.FailedToComparePasswords, err)
 		return nil, apperrors.ErrComparePasswords
 	}
 
@@ -77,18 +78,18 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 	}
 
 	if err := validateUpdateRequest(req); err != nil {
-		logrus.Errorf("failed to validate user: %v", err)
+		logrus.Errorf(logs.FailedToValidateUser, err)
 		return err
 	}
 
 	if !comparePassword(req.OldPassword, user.HashPassword) {
-		logrus.Errorf("failed to compare passwords: %v", err)
+		logrus.Errorf(logs.FailedToComparePasswords, err)
 		return apperrors.ErrComparePasswords
 	}
 
 	user.HashPassword, err = hashPassword(req.NewPassword)
 	if err != nil {
-		logrus.Errorf("failed to hash password: %v", err)
+		logrus.Errorf(logs.FailedToHashPassword, err)
 		return apperrors.ErrHashPassword
 	}
 
@@ -218,7 +219,7 @@ func handleUserRepositoryError(err error, data interface{}) error {
 		return apperrors.ErrDuplicateUser
 
 	default:
-		logrus.Errorf("internal database error: %v", err)
+		logrus.Errorf(logs.InternalDBError, err)
 		return apperrors.ErrDatabaseInternal
 	}
 }
