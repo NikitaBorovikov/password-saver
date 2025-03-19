@@ -9,11 +9,16 @@ import (
 	"password-saver/pkg/api/session"
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
+	"password-saver/pkg/logs"
 	"password-saver/pkg/repository"
 	"password-saver/pkg/usecases"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	sessionName = "auth"
 )
 
 func main() {
@@ -22,16 +27,16 @@ func main() {
 
 	cfg, err := config.Init()
 	if err != nil {
-		logrus.Fatalf("failed to init config: %v", err)
+		logrus.Fatalf(logs.FailedToInitConfig, err)
 	}
 
 	db, err := db.ConnAndPing(cfg.Postgres)
 	if err != nil {
-		logrus.Fatalf("failed to connect db: %v", err)
+		logrus.Fatalf(logs.FailedToConnectDB, err)
 	}
 	defer db.Close()
 
-	session := session.NewSessionManager(cfg.Http.SessionKey, "auth")
+	session := session.NewSessionManager(cfg.Http.SessionKey, sessionName)
 
 	repository := repository.InitRepository(db)
 	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
@@ -45,7 +50,6 @@ func main() {
 	<-quit
 
 	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("error occured on server shutting down: %s", err.Error())
+		logrus.Errorf(logs.FailedShutDownServer, err)
 	}
-
 }

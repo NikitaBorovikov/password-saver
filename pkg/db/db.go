@@ -1,21 +1,27 @@
 package db
 
 import (
+	"fmt"
 	"password-saver/pkg/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
+const (
+	driverName = "postgres"
+)
+
 func ConnAndPing(cfg config.Postgres) (*sqlx.DB, error) {
 
-	db, err := sqlx.Open("postgres", cfg.URL)
+	db, err := sqlx.Open(driverName, cfg.URL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open DB: %v", err)
 	}
 
-	err = db.Ping()
+	if err = db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping DB: %v", err)
+	}
 
-	return db, err
-
+	return db, nil
 }

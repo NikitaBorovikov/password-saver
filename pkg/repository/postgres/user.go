@@ -83,7 +83,7 @@ func (r *UserRepository) Delete(userID int64) error {
 		return fmt.Errorf("failed to delete user: %v", err)
 
 	}
-	//TODO: delete users' passwords from passwords table
+
 	return nil
 }
 

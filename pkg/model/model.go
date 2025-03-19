@@ -23,7 +23,6 @@ type (
 		GetByID(passwordID int64) (*Password, error)
 		Update(p *Password) error
 		Delete(passwordID int64) error
-		//Generate New
 	}
 
 	UserRepository interface {

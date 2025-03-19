@@ -47,3 +47,10 @@ const (
 	FailedToGetSessionKey        = "failed to get session key: %v"
 	FailedToGetUserIDFromSession = "failed to get user id from session"
 )
+
+// main.go logs
+const (
+	FailedToInitConfig   = "failed to init config: %v"
+	FailedToConnectDB    = "failed to connect db: %v"
+	FailedShutDownServer = "error occured on server shutting down: %v"
+)
