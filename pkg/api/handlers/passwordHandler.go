@@ -42,7 +42,7 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, http.StatusCreated, "password is saved")
+	sendOKResponse(w, r, http.StatusCreated, nil)
 
 	logrus.Info("password was saved sucessfully")
 }
@@ -111,7 +111,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, http.StatusOK, "password is updated")
+	sendOKResponse(w, r, http.StatusOK, nil)
 
 	logrus.Info("passwords was updated sucessfully")
 }
@@ -129,7 +129,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, http.StatusNoContent, "password is deleted")
+	sendOKResponse(w, r, http.StatusNoContent, nil)
 
 	logrus.Info("passwords was deleted sucessfully")
 }

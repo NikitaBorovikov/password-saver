@@ -94,7 +94,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, http.StatusOK, "user data was updated")
+	sendOKResponse(w, r, http.StatusOK, nil)
 
 	logrus.Infof("user {id = %d} was updated successfully", userID)
 }
@@ -155,7 +155,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendOKResponse(w, r, http.StatusNoContent, "logout is done")
+	sendOKResponse(w, r, http.StatusNoContent, nil)
 
 }
 
