@@ -8,8 +8,8 @@ const (
 	queryGetUserByID  = "SELECT user_id, email, hash_password FROM users WHERE user_id = $1"
 
 	queryInserNewPassword    = "INSERT INTO passwords (user_id, enc_service, enc_password) VALUES (:user_id, :enc_service, :enc_password)"
-	querySelectUserPasswords = "SELECT enc_service, enc_password FROM passwords WHERE user_id = $1"
+	querySelectUserPasswords = "SELECT password_id, enc_service, enc_password FROM passwords WHERE user_id = $1"
 	queryDelPassword         = "DELETE FROM passwords WHERE password_id = $1"
-	queryGetPasswordByID     = "SELECT password_id, enc_service, enc_password FROM passwords WHERE password_id = $1"
+	querySelectPasswordByID  = "SELECT password_id, enc_service, enc_password FROM passwords WHERE password_id = $1"
 	queryUpdatePassword      = "UPDATE passwords SET enc_service = :enc_service, enc_password = :enc_password WHERE password_id = :password_id AND user_id = :user_id"
 )

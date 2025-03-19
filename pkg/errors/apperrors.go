@@ -4,9 +4,10 @@ import "errors"
 
 // Database errors
 var (
-	ErrUserNotFound     = errors.New("failed to find user")
-	ErrDuplicateUser    = errors.New("user already exists")
-	ErrDatabaseInternal = errors.New("internal database error")
+	ErrUserNotFound      = errors.New("failed to find user")
+	ErrDuplicateUser     = errors.New("user already exists")
+	ErrDatabaseInternal  = errors.New("internal database error")
+	ErrPasswordNotExists = errors.New("failed to fide password")
 )
 
 // User validation errors
@@ -37,11 +38,6 @@ var (
 var (
 	ErrDecodeRequest   = errors.New("failed to decode request")
 	ErrInvalidURLParam = errors.New("invalid URL param")
-)
-
-// Password errors
-var (
-	ErrPasswordNotExists = errors.New("password not exists")
 )
 
 // Server errors

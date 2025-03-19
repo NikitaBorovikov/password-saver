@@ -17,7 +17,7 @@ type (
 	}
 
 	GeneratePasswordRequest struct {
-		Length            int `validate: "min=5,max=100"`
+		Length            int `validate:"min=5,max=100"`
 		UseSpecialSymbols bool
 	}
 )

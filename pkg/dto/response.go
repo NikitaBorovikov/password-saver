@@ -2,8 +2,9 @@ package dto
 
 type (
 	PasswordResponse struct {
-		Service  string `json:"service"`
-		Password string `json:"password"`
+		PasswordID int64  `json:"password_id"`
+		Service    string `json:"service"`
+		Password   string `json:"password"`
 	}
 
 	GetUserInfoResponse struct {

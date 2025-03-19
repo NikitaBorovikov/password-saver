@@ -73,6 +73,8 @@ func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, err
 		return nil, apperrors.ErrServerInternal
 	}
 
+	passwordResponse.PasswordID = passwordID
+
 	return passwordResponse, nil
 }
 
@@ -126,6 +128,7 @@ func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) 
 		if err != nil {
 			return nil, err
 		}
+		userPassword.PasswordID = elem.PasswordID
 
 		passwordResponse = append(passwordResponse, *userPassword)
 	}
