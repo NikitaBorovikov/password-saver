@@ -120,7 +120,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
 		logrus.Error("failed to get passwordID from url")
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrInvalidURLParam)
+		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
 		return
 	}
 
@@ -132,6 +132,43 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	sendOKResponse(w, r, http.StatusNoContent, "password is deleted")
 
 	logrus.Info("passwords was deleted sucessfully")
+}
+
+func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
+	ps, err := getPasswordSettingsFromURL(r)
+	if err != nil {
+		logrus.Errorf("failed to get password setting for geneating from URL: %v", err)
+		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
+		return
+	}
+
+	password, err := h.PasswordUseCase.Generate(ps)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	sendOKResponse(w, r, http.StatusOK, password)
+
+	logrus.Info("new password was generated successfully")
+}
+
+func getPasswordSettingsFromURL(r *http.Request) (*dto.GeneratePasswordRequest, error) {
+	lenStr := r.URL.Query().Get("len")
+	len, err := strconv.Atoi(lenStr)
+	if err != nil {
+		return nil, err
+	}
+
+	useSpecialStr := r.URL.Query().Get("special")
+	useSpecial := useSpecialStr == "true"
+
+	ps := &dto.GeneratePasswordRequest{
+		Length:            len,
+		UseSpecialSymbols: useSpecial,
+	}
+
+	return ps, nil
 }
 
 func decodePasswordRequest(r *http.Request) (*dto.PasswordRequest, error) {
