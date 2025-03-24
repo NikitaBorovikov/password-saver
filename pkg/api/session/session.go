@@ -1,6 +1,10 @@
 package session
 
-import "github.com/gorilla/sessions"
+import (
+	"net/http"
+
+	"github.com/gorilla/sessions"
+)
 
 type SessionManager struct {
 	Store *sessions.CookieStore
@@ -13,6 +17,7 @@ func NewSessionManager(key, name string) *SessionManager {
 		Path:     "/",
 		MaxAge:   3600 * 12, // 12 hours
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	return &SessionManager{

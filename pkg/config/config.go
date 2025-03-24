@@ -17,8 +17,9 @@ type (
 	}
 
 	Http struct {
-		Port       string `yml:"port"`
-		SessionKey string `env:"SESSION_KEY"`
+		Port        string `yml:"port"`
+		SessionKey  string `env:"SESSION_KEY"`
+		SessionName string `env:"SESSION_NAME"`
 	}
 
 	EncryptKeys struct {
