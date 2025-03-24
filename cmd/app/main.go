@@ -17,10 +17,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	sessionName = "password_saver_auth_session"
-)
-
 func main() {
 
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -36,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	session := session.NewSessionManager(cfg.Http.SessionKey, sessionName)
+	session := session.NewSessionManager(cfg.Http.SessionKey, cfg.Http.SessionName)
 
 	repository := repository.InitRepository(db)
 	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
