@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	sessionName = "auth"
+	sessionName = "password_saver_auth_session"
 )
 
 func main() {
