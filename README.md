@@ -1,32 +1,31 @@
 # REST API for secure storage and generation of new passwords
 ## Description
 This API is designed to help users securely store, manage, and generate strong passwords for their accounts. Built with security as a top priority, this project uses ```AES-128-GCM``` encryption to ensure that your sensitive information remains confidential and protected from unauthorized access. 
-## Security
-The security of the REST API is a top priority in this project. Below are the key measures implemented to ensure the confidentiality, integrity, and availability of user data:
-### 1. Authentication
-<b>Session-Based Authentication:</b> The API uses <a href = https://github.com/gorilla/sessions>Gorilla Sessions</a>. to manage user authentication securely. Each session ID generated using <a href = https://pkg.go.dev/crypto/rand>crypto/rand</a>.
 
-<b>Secure Cookies:</b> Session cookies are configured with the HttpOnly and SameSite flags.
+## Features
+- 🔒 Secure password storage with AES-128-GCM encryption
+- 🔑 Password generation with customizable complexity
+- 🛡️ Protection at every stage
+- 📦 Clean architecture implementation
+- 🔄 Session-based authentication
 
-### 2. Data Encryption
-<b>AES-128-GCM Encryption:</b> Sensitive data, such as passwords and associated service names, is encrypted using the AES-128-GCM algorithm. This provides both confidentiality and data integrity.
+## Security Overview
 
-<b>Separate Encryption Keys:</b> Different keys are used to encrypt passwords and service names, adding an extra layer of security.
+### Authentication & Sessions
+- **Secure Session Management**: Uses Gorilla Sessions with cryptographically random session IDs
+- **Cookie Security**: HttpOnly and SameSite flags enabled
+- **No Password Storage**: Only encrypted password data is stored
 
-### 3. Secure Key Management
-<b>Environment Variables:</b> Encryption keys and session values are stored in a protected .env file, which is excluded from version control (.gitignore).
+### Data Protection
+- **AES-128-GCM Encryption**: For both passwords and service names
+- **Separate Encryption Keys**: Different keys for different data types
+- **Secure Key Management**: Via environment variables (.env)
 
-<b>No Hardcoded Secrets:</b> The API avoids hardcoding sensitive information in the codebase.
+### API Security
+- **Zero Sensitive Data Exposure**: In responses or errors
+- **Input Validation**: Protection against injection attacks
 
-### 4. API Response Security
-<b>No Sensitive Data Exposure:</b> The API ensures that no confidential information (passwords, encryption keys) is included in responses.
-
-<b>Custom Error Messages:</b> Error responses are carefully designed to avoid revealing internal details,  which could be exploited by attackers.
-
-### 5. Input Validation
-<b>Validation:</b> All user inputs are sanitized and validated to prevent injection attacks (SQL injection, XSS).
-
-## Technologies and frameworks
+## Technology Stack
   - API in accordance with <b>REST</b> principles.
   - The structure of the application in accordance with the principles of the <b>Clean Architecture</b>.
   - Storing data using <b>Postgres</b>. Generation of migration files.
@@ -38,3 +37,15 @@ The security of the REST API is a top priority in this project. Below are the ke
 
 ## Possible improvements
   - switching to HTTPS
+
+## Getting Started
+- Go(version 1.23 or higher)
+
+## Installation
+### 1. Clone the repository
+```
+git clone https://github.com/NikitaBorovikov/password-saver.git
+cd password-saver
+```
+### 2. Set up environment variables
+
