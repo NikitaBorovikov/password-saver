@@ -48,4 +48,28 @@ git clone https://github.com/NikitaBorovikov/password-saver.git
 cd password-saver
 ```
 ### 2. Set up environment variables
+Create a ```.env``` file in the root of the project:
+```
+cp .env.example .env
+```
+Open the .env file and fill in the required values:
+```
+PG_URL="postgres://USER:PASSWORD@HOST:PORT/NAME?sslmode=disable"
 
+SESSION_KEY="your_session_key"
+SESSION_NAME="your_session_name"
+
+PASSWORD_ENC_KEY="your_password_enc_key"
+SERVICE_ENC_KEY="your_service_enc_key"
+```
+
+### 3. Run db migration
+If the application is being launched for the first time, migrations must be applied to the database:
+```
+migrate -database {YOUR_DB_URL} -path pkg/db/migrations up
+```
+
+### 4. Run the server
+```
+go run cmd/app/main.go
+```
