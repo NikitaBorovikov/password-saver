@@ -13,7 +13,11 @@ type (
 	}
 
 	Postgres struct {
-		URL string `env:"PG_URL"`
+		Host     string `env:"PG_HOST"`
+		Port     int64  `env:"PG_PORT"`
+		User     string `env:"PG_USER"`
+		Password string `env:"PG_PASSWORD"`
+		Name     string `env:"PG_NAME"`
 	}
 
 	Http struct {
