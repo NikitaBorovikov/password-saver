@@ -1,0 +1,40 @@
+services:
+  password-saver-app:
+    image: password-saver-app
+    container_name: password-saver-app
+    environment:
+      APP_ENV: ${APP_ENV:-prod} #dev or prod
+      PG_HOST: ${PG_HOST}
+      PG_PORT: ${PG_PORT}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_NAME: ${PG_NAME}
+      SESSION_KEY: ${SESSION_KEY}
+      SESSION_NAME: ${SESSION_NAME}
+      PASSWORD_ENC_KEY: ${PASSWORD_ENC_KEY}
+      SERVICE_ENC_KEY: ${SERVICE_ENC_KEY}
+    ports:
+      - "8081:8081"
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_NAME}
+    ports:
+      - "5432:5432"
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d passwords"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres_data:
