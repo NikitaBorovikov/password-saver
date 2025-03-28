@@ -1,7 +1,10 @@
 package config
 
 import (
+	"os"
+
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type (
@@ -46,6 +49,18 @@ func Init() (*Config, error) {
 }
 
 func ReadFromEnv(cfg *Config) error {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "dev"
+	}
+
+	//if not prod, then we take the data from the .env.dev file.
+	// if prod, then from the environment variables
+	if env == "dev" {
+		if err := godotenv.Load(".env.dev"); err != nil {
+			return err
+		}
+	}
 
 	if err := cleanenv.ReadEnv(&cfg.Postgres); err != nil {
 		return err
