@@ -40,6 +40,8 @@ This API is designed to help users securely store, manage, and generate strong p
 
 ## Getting Started
 - Go(version 1.23 or higher)
+- Docker
+- Make (optional)
 
 ## Installation
 ### 1. Clone the repository
@@ -47,29 +49,32 @@ This API is designed to help users securely store, manage, and generate strong p
 git clone https://github.com/NikitaBorovikov/password-saver.git
 cd password-saver
 ```
-### 2. Set up environment variables
-Create a ```.env``` file in the root of the project:
+### 2. Environment Setup
+This project uses two environment files:
+- ```.env``` - for <b>production</b>
+- ```.env.dev``` - for <b>development</b>
+
+Copy the template from the repository:
 ```
-cp .env.example .env
+cp env.example .env       # For production
+cp env.example .env.dev   # For development
 ```
 Open the .env file and fill in the required values:
+Open ```.env``` and ```.env.dev``` files and fill in the required values.
+
+### 3. Build and run the application:
+Build the docker image:
 ```
-PG_URL="postgres://USER:PASSWORD@HOST:PORT/NAME?sslmode=disable"
-
-SESSION_KEY="your_session_key"
-SESSION_NAME="your_session_name"
-
-PASSWORD_ENC_KEY="your_password_enc_key"
-SERVICE_ENC_KEY="your_service_enc_key"
+ docker build -t password-saver-app .  
 ```
+Run the application:
+```
+docker-compose up
+```
+The server will be running on port ```8081```
 
-### 3. Run db migration
+### 4. Run db migration
 If the application is being launched for the first time, migrations must be applied to the database:
 ```
-migrate -database {YOUR_DB_URL} -path pkg/db/migrations up
-```
-
-### 4. Run the server
-```
-go run cmd/app/main.go
+make migrate
 ```
