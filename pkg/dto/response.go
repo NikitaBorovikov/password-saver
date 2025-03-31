@@ -5,6 +5,7 @@ type (
 		PasswordID int64  `json:"password_id"`
 		Service    string `json:"service"`
 		Password   string `json:"password"`
+		Login      string `json:"login"`
 	}
 
 	GetUserInfoResponse struct {

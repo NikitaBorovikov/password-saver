@@ -14,6 +14,7 @@ type (
 	PasswordRequest struct {
 		Service  string `json:"service" validate:"min=1,max=100"`
 		Password string `json:"password" validate:"min=1,max=100"`
+		Login    string `json:"login,omitempty" validate:"max=100"`
 	}
 
 	GeneratePasswordRequest struct {

@@ -8,6 +8,7 @@ type (
 		UserID      int64  `db:"user_id"`
 		EncService  string `db:"enc_service"`
 		EncPassword string `db:"enc_password"`
+		EncLogin    string `db:"enc_login`
 	}
 
 	User struct {
