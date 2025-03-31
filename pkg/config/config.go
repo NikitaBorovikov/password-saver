@@ -55,7 +55,7 @@ func ReadFromEnv(cfg *Config) error {
 	}
 
 	//if not prod, then we take the data from the .env.dev file.
-	// if prod, then from the environment variables
+	//if prod, then from the environment variables
 	if env == "dev" {
 		if err := godotenv.Load(".env.dev"); err != nil {
 			return err

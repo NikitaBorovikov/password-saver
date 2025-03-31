@@ -6,8 +6,10 @@ import (
 	"password-saver/pkg/api/session"
 	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
+	"time"
 
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 	"github.com/sirupsen/logrus"
 )
 
@@ -55,6 +57,17 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	})
+}
+
+// limits the number of requests
+func RateLimiterMeddleWare(requestsPerMin int) func(http.Handler) http.Handler {
+	return httprate.Limit(
+		requestsPerMin, // request amount
+		time.Minute,    // interval
+		httprate.WithKeyFuncs(func(r *http.Request) (string, error) {
+			return r.RemoteAddr, nil // key is IP
+		}),
+	)
 }
 
 func LoggingMiddleWare() func(http.Handler) http.Handler {

@@ -14,16 +14,19 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 	authMiddleware := handlers.AuthMiddleware(h.UserHandler.Session)
 
 	r.Route("/auth", func(r chi.Router) {
+		r.Use(handlers.RateLimiterMeddleWare(5)) //5 requests per minute
 		authRoutes(r, *h.UserHandler)
 	})
 
 	r.Route("/profile", func(r chi.Router) {
 		r.Use(authMiddleware)
+		r.Use(handlers.RateLimiterMeddleWare(30))
 		profileRoutes(r, *h.UserHandler)
 	})
 
 	r.Route("/passwords", func(r chi.Router) {
 		r.Use(authMiddleware)
+		r.Use(handlers.RateLimiterMeddleWare(50))
 		passwordRoutes(r, *h.PasswordHandler)
 	})
 	return r

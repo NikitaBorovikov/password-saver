@@ -33,7 +33,8 @@ This API is designed to help users securely store, manage, and generate strong p
   - Configuration using <a href = https://github.com/ilyakaznacheev/cleanenv>cleanenv</a>. Working with environment variables.
   - Implemented registration and authentication using <a href = https://github.com/gorilla/sessions>Gorilla Sessions</a>.
   - Writing SQL queries using <a href = https://github.com/jmoiron/sqlx>sqlx</a>.
-  - data encryption using <a href = https://github.com/alpertayfun/crypto-aes>crypto/AES</a>.
+  - Data encryption using <a href = https://github.com/alpertayfun/crypto-aes>crypto/AES</a>.
+  - Working with Dockerfile and docker-compose.
 
 ## Possible improvements
   - switching to HTTPS
