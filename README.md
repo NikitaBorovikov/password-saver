@@ -22,8 +22,9 @@ This API is designed to help users securely store, manage, and generate strong p
 - **Secure Key Management**: Via environment variables (.env)
 
 ### API Security
-- **Zero Sensitive Data Exposure**: In responses or errors
+- **Rate Limiting**: Protection against brute force and DDoS attacks
 - **Input Validation**: Protection against injection attacks
+- **Zero Sensitive Data Exposure**: In responses or errors
 
 ## Technology Stack
   - API in accordance with <b>REST</b> principles.
