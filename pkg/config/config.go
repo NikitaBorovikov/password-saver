@@ -31,6 +31,7 @@ type (
 	EncryptKeys struct {
 		EncPasswordKey string `env:"PASSWORD_ENC_KEY"`
 		EncServiceKey  string `env:"SERVICE_ENC_KEY"`
+		EncLoginKey    string `env:"LOGIN_ENC_KEY"`
 	}
 )
 
