@@ -28,6 +28,12 @@ func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *P
 	}
 }
 
+type encPasswordData struct {
+	password string
+	service  string
+	login    string
+}
+
 func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 
 	if err := validateForPassword(req); err != nil {
@@ -35,13 +41,13 @@ func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 		return err
 	}
 
-	encPassword, encService, err := uc.encryptFields(req)
+	encPasswordData, err := uc.encryptFields(req)
 	if err != nil {
 		logrus.Error(err)
 		return apperrors.ErrServerInternal
 	}
 
-	password := newPassword(0, userID, encPassword, encService)
+	password := newPassword(0, userID, encPasswordData)
 
 	if err := uc.PasswordRepository.Save(password); err != nil {
 		return handlerPasswordRepositoryError(err)
@@ -86,13 +92,13 @@ func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID i
 		return err
 	}
 
-	encPassword, encService, err := uc.encryptFields(req)
+	encPasswordData, err := uc.encryptFields(req)
 	if err != nil {
 		logrus.Error(err)
 		return apperrors.ErrServerInternal
 	}
 
-	password := newPassword(passwordID, userID, encPassword, encService)
+	password := newPassword(0, userID, encPasswordData)
 
 	if err := uc.PasswordRepository.Update(password); err != nil {
 		return handlerPasswordRepositoryError(err)
@@ -137,19 +143,26 @@ func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) 
 	return passwordResponse, nil
 }
 
-func (uc *PasswordUseCase) encryptFields(req *dto.PasswordRequest) (string, string, error) {
+func (uc *PasswordUseCase) encryptFields(req *dto.PasswordRequest) (*encPasswordData, error) {
+	epd := &encPasswordData{}
+	var err error
 
-	encPassword, err := encryption.Encrypt([]byte(req.Password), []byte(uc.cfg.EncPasswordKey))
+	epd.password, err = encryption.Encrypt([]byte(req.Password), []byte(uc.cfg.EncPasswordKey))
 	if err != nil {
-		return "", "", fmt.Errorf("failed to encrypt password: %v", err)
+		return nil, fmt.Errorf("failed to encrypt password: %v", err)
 	}
 
-	encService, err := encryption.Encrypt([]byte(req.Service), []byte(uc.cfg.EncServiceKey))
+	epd.service, err = encryption.Encrypt([]byte(req.Service), []byte(uc.cfg.EncServiceKey))
 	if err != nil {
-		return "", "", fmt.Errorf("failed to encrypt service: %v", err)
+		return nil, fmt.Errorf("failed to encrypt service: %v", err)
 	}
 
-	return encPassword, encService, nil
+	epd.login, err = encryption.Encrypt([]byte(req.Login), []byte(uc.cfg.EncLoginKey))
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt login: %v", err)
+	}
+
+	return epd, nil
 }
 
 func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.PasswordResponse, error) {
@@ -165,6 +178,11 @@ func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.Password
 	passwordResponse.Service, err = decryptData(password.EncService, uc.cfg.EncServiceKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt service: %v", err)
+	}
+
+	passwordResponse.Login, err = decryptData(password.EncLogin, uc.cfg.EncLoginKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt login: %v", err)
 	}
 
 	return &passwordResponse, nil
@@ -222,12 +240,13 @@ func decryptData(encData string, encKey string) (string, error) {
 	return plainData, nil
 }
 
-func newPassword(passwordID, userID int64, encPassword, encService string) *model.Password {
+func newPassword(passwordID, userID int64, ecp *encPasswordData) *model.Password {
 	return &model.Password{
 		PasswordID:  passwordID,
 		UserID:      userID,
-		EncPassword: encPassword,
-		EncService:  encService,
+		EncPassword: ecp.password,
+		EncService:  ecp.service,
+		EncLogin:    ecp.login,
 	}
 }
 
