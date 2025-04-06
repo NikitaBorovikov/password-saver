@@ -180,12 +180,31 @@ func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.Password
 		return nil, fmt.Errorf("failed to decrypt service: %v", err)
 	}
 
-	passwordResponse.Login, err = decryptData(password.EncLogin, uc.cfg.EncLoginKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt login: %v", err)
+	// if login is not NULL, then we decrypt it, otherwise we set the default value
+	if password.EncLogin != nil {
+		passwordResponse.Login, err = decryptData(*password.EncLogin, uc.cfg.EncLoginKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decrypt login: %v", err)
+		}
+	} else {
+		passwordResponse.Login = ""
 	}
 
 	return &passwordResponse, nil
+}
+
+func decryptData(encData string, encKey string) (string, error) {
+	encDataInByte, err := base64.StdEncoding.DecodeString(encData)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode string by byte: %v", err)
+	}
+
+	plainData, err := encryption.Decrypt(encDataInByte, []byte(encKey))
+	if err != nil {
+		return "", fmt.Errorf("failed to decrypt data: %v", err)
+	}
+
+	return plainData, nil
 }
 
 func validateForPassword(req *dto.PasswordRequest) error {
@@ -228,27 +247,13 @@ func handleValidatePasswordErrors(err error) error {
 	return apperrors.ErrValidatePassword
 }
 
-func decryptData(encData string, encKey string) (string, error) {
-	encDataInByte, err := base64.StdEncoding.DecodeString(encData)
-	if err != nil {
-		return "", fmt.Errorf("failed to decode string by byte: %v", err)
-	}
-
-	plainData, err := encryption.Decrypt(encDataInByte, []byte(encKey))
-	if err != nil {
-		return "", fmt.Errorf("failed to decrypt data: %v", err)
-	}
-
-	return plainData, nil
-}
-
 func newPassword(passwordID, userID int64, ecp *encPasswordData) *model.Password {
 	return &model.Password{
 		PasswordID:  passwordID,
 		UserID:      userID,
 		EncPassword: ecp.password,
 		EncService:  ecp.service,
-		EncLogin:    ecp.login,
+		EncLogin:    &ecp.login,
 	}
 }
 

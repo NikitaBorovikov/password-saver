@@ -4,11 +4,11 @@ import "password-saver/pkg/dto"
 
 type (
 	Password struct {
-		PasswordID  int64  `db:"password_id"`
-		UserID      int64  `db:"user_id"`
-		EncService  string `db:"enc_service"`
-		EncPassword string `db:"enc_password"`
-		EncLogin    string `db:"enc_login`
+		PasswordID  int64   `db:"password_id"`
+		UserID      int64   `db:"user_id"`
+		EncService  string  `db:"enc_service"`
+		EncPassword string  `db:"enc_password"`
+		EncLogin    *string `db:"enc_login"`
 	}
 
 	User struct {
