@@ -218,6 +218,8 @@ func handleValidatePasswordErrors(err error) error {
 			return apperrors.ErrValidateServiceField
 		case "Password":
 			return apperrors.ErrValidateSavePasswordField
+		case "Login":
+			return apperrors.ErrValidateLoginField
 		case "Length":
 			return apperrors.ErrValidateLengthPassword
 		}
