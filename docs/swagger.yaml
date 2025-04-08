@@ -1,0 +1,63 @@
+basePath: /
+definitions:
+  dto.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 40
+        minLength: 7
+        type: string
+    required:
+    - email
+    type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.GetUserInfoResponse:
+    properties:
+      email:
+        type: string
+      userID:
+        type: integer
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: REST API for secure storage and generation of new passwords
+  title: Password-Saver API
+  version: "1.0"
+paths:
+  /auth/reg:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with email and password.
+      parameters:
+      - description: User registration data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.GetUserInfoResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Authentication
+swagger: "2.0"
