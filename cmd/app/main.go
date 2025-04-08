@@ -17,6 +17,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// @title Password-Saver API
+// @version 1.0
+// @description REST API for secure storage and generation of new passwords
+
+// @host localhost:8081
+// @BasePath /
+
+// @securityDefinitions.apikey SessionCookie
+// @in cookie
+// @name password_saver_auth_session
+// @description Some endpoints require an active session (the session is stored for 12 hours).
 func main() {
 
 	logrus.SetFormatter(&logrus.JSONFormatter{})

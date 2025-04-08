@@ -28,6 +28,15 @@ func newUserHandler(uc *usecases.UserUseCase, session *session.SessionManager) *
 	}
 }
 
+// @Summary Register a new user
+// @Description Creates a new user account with email and password.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param input body dto.AuthRequest true "User registration data"
+// @Success 201 {object} dto.GetUserInfoResponse
+// @Failure 400,422 {object} dto.ErrorResponse
+// @Router /auth/reg [post]
 func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	req, err := decodeAuthRequest(r)
@@ -50,6 +59,15 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof(logs.UserRegSuccessfully, userID)
 }
 
+// @Summary User authentication
+// @Description Log in with user's username and password.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param input body dto.AuthRequest true "User log in data"
+// @Success 200 {integer} {userID}
+// @Failure 400,401,500 {object} dto.ErrorResponse
+// @Router /auth/login [post]
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 
 	req, err := decodeAuthRequest(r)
@@ -76,6 +94,16 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof(logs.UserLoginedSuccessfully, user.UserID)
 }
 
+// @Summary Update user's data
+// @Description Update user's password by user ID from context (an active session is required).
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param input body dto.UpdateUserRequest true "Old and new user's passwords"
+// @Success 200
+// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /profile/ [put]
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
@@ -100,6 +128,14 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof(logs.UserUpdatedSuccessfully, userID)
 }
 
+// @Summary Get user by ID
+// @Description Get user's data by user ID from context (an active session is required).
+// @Tags User
+// @Produce json
+// @Success 200 {object} dto.GetUserInfoResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /profile/ [get]
 func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
@@ -121,6 +157,14 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.UserGivenByIDSuccessfully)
 }
 
+// @Summary Delete user's profile
+// @Description delete user's info by user id from context (an active session is required).
+// @Tags User
+// @Produce json
+// @Success 204
+// @Failure 500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /profile/ [delete]
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
@@ -139,6 +183,14 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	logrus.Infof(logs.UserDeletedSuccessfully, userID)
 }
 
+// @Summary Log out of the system
+// @Description Disables the user's session (an active session is required).
+// @Tags User
+// @Produce json
+// @Success 204
+// @Failure 500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /profile/logout [post]
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	s := h.Session
 	session, err := s.Store.Get(r, s.Name)

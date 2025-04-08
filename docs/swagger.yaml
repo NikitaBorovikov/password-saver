@@ -23,6 +23,17 @@ definitions:
       userID:
         type: integer
     type: object
+  dto.UpdateUserRequest:
+    properties:
+      new_password:
+        maxLength: 40
+        minLength: 7
+        type: string
+      old_password:
+        type: string
+    required:
+    - old_password
+    type: object
 host: localhost:8081
 info:
   contact: {}
@@ -30,6 +41,40 @@ info:
   title: Password-Saver API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in with user's username and password.
+      parameters:
+      - description: User log in data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: User authentication
+      tags:
+      - Authentication
   /auth/reg:
     post:
       consumes:
@@ -60,4 +105,98 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /profile/:
+    delete:
+      description: delete user's info by user id from context (an active session is
+        required).
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Delete user's profile
+      tags:
+      - User
+    get:
+      description: Get user's data by user ID from context (an active session is required).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetUserInfoResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Get user by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update user's password by user ID from context (an active session
+        is required).
+      parameters:
+      - description: Old and new user's passwords
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Update user's data
+      tags:
+      - User
+  /profile/logout:
+    post:
+      description: Disables the user's session (an active session is required).
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - SessionCookie: []
+      summary: Log out of the system
+      tags:
+      - User
+securityDefinitions:
+  SessionCookie:
+    description: Some endpoints require an active session (the session is stored for
+      12 hours).
+    in: cookie
+    name: password_saver_auth_session
+    type: apiKey
 swagger: "2.0"
