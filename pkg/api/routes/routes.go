@@ -3,7 +3,10 @@ package routes
 import (
 	"password-saver/pkg/api/handlers"
 
+	_ "password-saver/docs"
+
 	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func InitRoutes(h handlers.Handlers) *chi.Mux {
@@ -29,6 +32,10 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 		r.Use(handlers.RateLimiterMeddleWare(50))
 		passwordRoutes(r, *h.PasswordHandler)
 	})
+
+	//swagger
+	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("doc.json")))
+
 	return r
 }
 
