@@ -23,6 +23,16 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 	}
 }
 
+// @Summary Save password
+// @Description Save user's password (an active session is required).
+// @Tags Passwords
+// @Accept json
+// @Produce json
+// @Param input body dto.PasswordRequest true "Password data"
+// @Success 201
+// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/ [post]
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
@@ -48,6 +58,14 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.PasswordSavedSuccessfully)
 }
 
+// @Summary Get passwords
+// @Description Get all user's passwords by user ID form context (an active session is required).
+// @Tags Passwords
+// @Produce json
+// @Success 200 {object} []dto.PasswordResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/ [get]
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
@@ -67,6 +85,15 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.PasswordsGivenSuccessfully)
 }
 
+// @Summary Get password by ID
+// @Description Get user's passwords by user ID form context and passwordID from URL (an active session is required).
+// @Tags Passwords
+// @Produce json
+// @Param passwordID path string true "password ID"
+// @Success 200 {object} dto.PasswordResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/{passwordID} [get]
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
@@ -86,6 +113,17 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.PasswordsGivenSuccessfully)
 }
 
+// @Summary Update password's data
+// @Description Update passwords's data by user ID from context and password ID from URL (an active session is required).
+// @Tags Passwords
+// @Accept json
+// @Produce json
+// @Param passwordID path string true "password ID"
+// @Param input body dto.PasswordRequest true "New password data"
+// @Success 200
+// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/ [put]
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
@@ -117,6 +155,15 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.PasswordUpdatedSuccessfully)
 }
 
+// @Summary Delete password
+// @Description delete user's password by user id from context and password ID from URL (an active session is required).
+// @Tags Passwords
+// @Produce json
+// @Param passwordID path string true "password ID"
+// @Success 204
+// @Failure 400,500 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/ [delete]
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
@@ -135,6 +182,16 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	logrus.Info(logs.PasswordDeletedSuccessfully)
 }
 
+// @Summary Generate password
+// @Description Generate a new password based on the specified parameters (length, using special symbols)
+// @Tags Passwords
+// @Produce json
+// @Param len query string true "Password length (5-100)"
+// @Param special query bool true "Using special symbols (true or false)"
+// @Success 200 {object} string
+// @Failure 400 {object} dto.ErrorResponse
+// @Security SessionCookie
+// @Router /passwords/gen [get]
 func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	ps, err := getPasswordSettingsFromURL(r)
 	if err != nil {
