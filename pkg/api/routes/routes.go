@@ -2,6 +2,7 @@ package routes
 
 import (
 	"password-saver/pkg/api/handlers"
+	"password-saver/pkg/config"
 
 	_ "password-saver/docs"
 
@@ -9,7 +10,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func InitRoutes(h handlers.Handlers) *chi.Mux {
+func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Global middleware stack
@@ -17,18 +18,17 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 		handlers.CORSMiddleware(),
 		handlers.LoggingMiddleware(),
 	)
-	authMiddleware := handlers.AuthMiddleware(h.UserHandler.Session)
 
 	// Auth routes with strict rate limiting
 	r.Route("/auth", func(r chi.Router) {
-		r.Use(handlers.RateLimiterMiddleware(5))
+		r.Use(handlers.RateLimiterMiddleware(cfg.RateLimits.Auth))
 		authRoutes(r, *h.UserHandler)
 	})
 
 	// Authenticated routes
 	r.Group(func(r chi.Router) {
-		r.Use(authMiddleware)
-		r.Use(handlers.RateLimiterMiddleware(30))
+		r.Use(handlers.AuthMiddleware(h.UserHandler.Session))
+		r.Use(handlers.RateLimiterMiddleware(cfg.RateLimits.CloseRoutes))
 
 		// Profile routes
 		r.Route("/profile", func(r chi.Router) {
@@ -44,7 +44,7 @@ func InitRoutes(h handlers.Handlers) *chi.Mux {
 
 	// Open routes
 	r.Group(func(r chi.Router) {
-		r.Use(handlers.RateLimiterMiddleware(30))
+		r.Use(handlers.RateLimiterMiddleware(cfg.RateLimits.OpenRoutes))
 		openRouters(r, h)
 	})
 

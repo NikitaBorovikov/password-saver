@@ -14,11 +14,11 @@ type Server struct {
 	httpServer *http.Server
 }
 
-func NewServer(h handlers.Handlers, cfg *config.Http) *Server {
-	router := routes.InitRoutes(h)
+func NewServer(h handlers.Handlers, cfg *config.Config) *Server {
+	router := routes.InitRoutes(h, cfg)
 	srv := &Server{
 		httpServer: &http.Server{
-			Addr:    cfg.Port,
+			Addr:    cfg.Http.Port,
 			Handler: router,
 		},
 	}

@@ -1,2 +1,6 @@
 http:
   port: ":8081"
+rate_limits:
+  auth: 5 #requests per minute for the same IP
+  close_routes: 30
+  open_routes: 40

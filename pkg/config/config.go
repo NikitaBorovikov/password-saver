@@ -11,7 +11,8 @@ type (
 	Config struct {
 		Postgres    Postgres
 		EncryptKeys EncryptKeys
-		Http        Http `yml:"http"`
+		Http        Http       `yaml:"http"`
+		RateLimits  RateLimits `yaml:"rate_limits"`
 	}
 
 	Postgres struct {
@@ -23,9 +24,15 @@ type (
 	}
 
 	Http struct {
-		Port        string `yml:"port"`
+		Port        string `yaml:"port"`
 		SessionKey  string `env:"SESSION_KEY"`
 		SessionName string `env:"SESSION_NAME"`
+	}
+
+	RateLimits struct {
+		Auth        int `yaml:"auth"`
+		CloseRoutes int `yaml:"close_routes"`
+		OpenRoutes  int `yaml:"open_routes"`
 	}
 
 	EncryptKeys struct {

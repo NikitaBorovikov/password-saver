@@ -49,7 +49,7 @@ func main() {
 	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
 	handlers := handlers.InitHandlers(usecases, session)
 
-	srv := server.NewServer(*handlers, &cfg.Http)
+	srv := server.NewServer(*handlers, cfg)
 	srv.Run()
 
 	quit := make(chan os.Signal, 1)
