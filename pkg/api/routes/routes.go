@@ -11,29 +11,44 @@ import (
 
 func InitRoutes(h handlers.Handlers) *chi.Mux {
 	r := chi.NewRouter()
-	r.Use(handlers.CORSMiddleware())
-	r.Use(handlers.LoggingMiddleWare())
 
+	// Global middleware stack
+	r.Use(
+		handlers.CORSMiddleware(),
+		handlers.LoggingMiddleware(),
+	)
 	authMiddleware := handlers.AuthMiddleware(h.UserHandler.Session)
 
+	// Auth routes with strict rate limiting
 	r.Route("/auth", func(r chi.Router) {
-		r.Use(handlers.RateLimiterMeddleWare(5)) //5 requests per minute
+		r.Use(handlers.RateLimiterMiddleware(5))
 		authRoutes(r, *h.UserHandler)
 	})
 
-	r.Route("/profile", func(r chi.Router) {
+	// Authenticated routes
+	r.Group(func(r chi.Router) {
 		r.Use(authMiddleware)
-		r.Use(handlers.RateLimiterMeddleWare(20))
-		profileRoutes(r, *h.UserHandler)
+		r.Use(handlers.RateLimiterMiddleware(30))
+
+		// Profile routes
+		r.Route("/profile", func(r chi.Router) {
+			profileRoutes(r, *h.UserHandler)
+		})
+
+		// Password routes
+		r.Route("/passwords", func(r chi.Router) {
+			passwordRoutes(r, *h.PasswordHandler)
+		})
+
 	})
 
-	r.Route("/passwords", func(r chi.Router) {
-		r.Use(authMiddleware)
-		r.Use(handlers.RateLimiterMeddleWare(30))
-		passwordRoutes(r, *h.PasswordHandler)
+	// Open routes
+	r.Group(func(r chi.Router) {
+		r.Use(handlers.RateLimiterMiddleware(30))
+		openRouters(r, h)
 	})
 
-	//swagger
+	// Swagger documentation
 	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("doc.json")))
 
 	return r
@@ -52,7 +67,6 @@ func profileRoutes(r chi.Router, h handlers.UserHandler) {
 }
 
 func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
-	r.Get("/gen", h.Generate)
 	r.Post("/", h.Save)
 	r.Get("/", h.GetAll)
 
@@ -61,4 +75,8 @@ func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 		r.Put("/", h.Update)
 		r.Delete("/", h.Delete)
 	})
+}
+
+func openRouters(r chi.Router, h handlers.Handlers) {
+	r.Get("/gen", h.PasswordHandler.Generate)
 }

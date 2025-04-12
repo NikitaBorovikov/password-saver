@@ -59,8 +59,8 @@ func CORSMiddleware() func(http.Handler) http.Handler {
 	})
 }
 
-// limits the number of requests
-func RateLimiterMeddleWare(requestsPerMin int) func(http.Handler) http.Handler {
+// Limits the number of requests
+func RateLimiterMiddleware(requestsPerMin int) func(http.Handler) http.Handler {
 	return httprate.Limit(
 		requestsPerMin, // request amount
 		time.Minute,    // interval
@@ -70,7 +70,7 @@ func RateLimiterMeddleWare(requestsPerMin int) func(http.Handler) http.Handler {
 	)
 }
 
-func LoggingMiddleWare() func(http.Handler) http.Handler {
+func LoggingMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
