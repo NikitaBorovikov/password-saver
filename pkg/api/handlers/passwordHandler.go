@@ -190,8 +190,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Param special query bool true "Using special symbols (true or false)"
 // @Success 200 {object} string
 // @Failure 400 {object} dto.ErrorResponse
-// @Security SessionCookie
-// @Router /passwords/gen [get]
+// @Router /gen [get]
 func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	ps, err := getPasswordSettingsFromURL(r)
 	if err != nil {

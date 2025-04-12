@@ -36,6 +36,7 @@ This API is designed to help users securely store, manage, and generate strong p
   - Writing SQL queries using <a href = https://github.com/jmoiron/sqlx>sqlx</a>.
   - Data encryption using <a href = https://github.com/alpertayfun/crypto-aes>crypto/AES</a>.
   - Working with Dockerfile and docker-compose.
+  - API documentation using <a href = https://github.com/go-swagger/go-swagger>swagger</a>.
 
 ## Possible improvements
   - switching to HTTPS
@@ -80,3 +81,6 @@ If the application is being launched for the first time, migrations must be appl
 ```
 make migrate
 ```
+
+### 5. Documentation 
+To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).

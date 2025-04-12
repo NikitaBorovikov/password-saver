@@ -113,6 +113,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/gen": {
+            "get": {
+                "description": "Generate a new password based on the specified parameters (length, using special symbols)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Passwords"
+                ],
+                "summary": "Generate password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Password length (5-100)",
+                        "name": "len",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Using special symbols (true or false)",
+                        "name": "special",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/passwords/": {
             "get": {
                 "security": [
@@ -292,53 +334,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/passwords/gen": {
-            "get": {
-                "security": [
-                    {
-                        "SessionCookie": []
-                    }
-                ],
-                "description": "Generate a new password based on the specified parameters (length, using special symbols)",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Passwords"
-                ],
-                "summary": "Generate password",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Password length (5-100)",
-                        "name": "len",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Using special symbols (true or false)",
-                        "name": "special",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/dto.ErrorResponse"
                         }

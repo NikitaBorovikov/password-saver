@@ -130,6 +130,35 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /gen:
+    get:
+      description: Generate a new password based on the specified parameters (length,
+        using special symbols)
+      parameters:
+      - description: Password length (5-100)
+        in: query
+        name: len
+        required: true
+        type: string
+      - description: Using special symbols (true or false)
+        in: query
+        name: special
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Generate password
+      tags:
+      - Passwords
   /passwords/:
     delete:
       description: delete user's password by user id from context and password ID
@@ -275,37 +304,6 @@ paths:
       security:
       - SessionCookie: []
       summary: Get password by ID
-      tags:
-      - Passwords
-  /passwords/gen:
-    get:
-      description: Generate a new password based on the specified parameters (length,
-        using special symbols)
-      parameters:
-      - description: Password length (5-100)
-        in: query
-        name: len
-        required: true
-        type: string
-      - description: Using special symbols (true or false)
-        in: query
-        name: special
-        required: true
-        type: boolean
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - SessionCookie: []
-      summary: Generate password
       tags:
       - Passwords
   /profile/:
