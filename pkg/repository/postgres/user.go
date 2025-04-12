@@ -89,7 +89,7 @@ func (r *UserRepository) Delete(userID int64) error {
 
 func (r *UserRepository) GetByID(userID int64) (*model.User, error) {
 	var user model.User
-	if err := r.db.Get(&user, queryGetUserByID, userID); err != nil {
+	if err := r.db.Get(&user, querySelectUserByID, userID); err != nil {
 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperrors.ErrUserNotFound

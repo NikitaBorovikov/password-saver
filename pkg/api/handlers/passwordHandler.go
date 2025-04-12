@@ -95,6 +95,13 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Security SessionCookie
 // @Router /passwords/{passwordID} [get]
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		logrus.Error(logs.FailedToGetUserIDFromCtx)
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		return
+	}
+
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
 		logrus.Error(logs.FailedToGetPasswordIDFromURL)
@@ -102,7 +109,7 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	passwordResponse, err := h.PasswordUseCase.GetByID(passwordID)
+	passwordResponse, err := h.PasswordUseCase.GetByID(passwordID, userID)
 	if err != nil {
 		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
@@ -125,16 +132,16 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Security SessionCookie
 // @Router /passwords/ [put]
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
-	passwordID, err := getPasswordIDFromURL(r)
-	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
-		return
-	}
-
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
 		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		return
+	}
+
+	passwordID, err := getPasswordIDFromURL(r)
+	if err != nil {
+		sendErrorRespose(w, r, http.StatusBadRequest, err)
 		return
 	}
 

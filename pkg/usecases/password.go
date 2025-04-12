@@ -69,8 +69,8 @@ func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) 
 	return passwordResponse, nil
 }
 
-func (uc *PasswordUseCase) GetByID(passwordID int64) (*dto.PasswordResponse, error) {
-	userPassword, err := uc.PasswordRepository.GetByID(passwordID)
+func (uc *PasswordUseCase) GetByID(passwordID, userID int64) (*dto.PasswordResponse, error) {
+	userPassword, err := uc.PasswordRepository.GetByID(passwordID, userID)
 	if err != nil {
 		return nil, handlerPasswordRepositoryError(err)
 	}

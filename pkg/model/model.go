@@ -21,7 +21,7 @@ type (
 	PasswordRepository interface {
 		Save(p *Password) error
 		GetAll(userID int64) ([]Password, error)
-		GetByID(passwordID int64) (*Password, error)
+		GetByID(passwordID, userID int64) (*Password, error)
 		Update(p *Password) error
 		Delete(passwordID, userID int64) error
 	}

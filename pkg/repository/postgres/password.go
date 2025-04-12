@@ -39,9 +39,9 @@ func (r *PasswordRepository) GetAll(userID int64) ([]model.Password, error) {
 	return passwords, nil
 }
 
-func (r *PasswordRepository) GetByID(passwordID int64) (*model.Password, error) {
+func (r *PasswordRepository) GetByID(passwordID, userID int64) (*model.Password, error) {
 	var password model.Password
-	if err := r.db.Get(&password, querySelectPasswordByID, passwordID); err != nil {
+	if err := r.db.Get(&password, querySelectPasswordByID, passwordID, userID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperrors.ErrPasswordNotExists
 		}
