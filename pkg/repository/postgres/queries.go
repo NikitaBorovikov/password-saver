@@ -11,7 +11,7 @@ const (
 	//password table queries
 	queryInserNewPassword    = "INSERT INTO passwords (user_id, enc_service, enc_password, enc_login) VALUES (:user_id, :enc_service, :enc_password, :enc_login)"
 	querySelectUserPasswords = "SELECT password_id, enc_service, enc_password, enc_login FROM passwords WHERE user_id = $1"
-	queryDelPassword         = "DELETE FROM passwords WHERE password_id = $1"
+	queryDelPassword         = "DELETE FROM passwords WHERE password_id = $1 AND user_id = $2"
 	querySelectPasswordByID  = "SELECT password_id, enc_service, enc_password, enc_login FROM passwords WHERE password_id = $1"
 	queryUpdatePassword      = "UPDATE passwords SET enc_service = :enc_service, enc_password = :enc_password, enc_login = :enc_login WHERE password_id = :password_id AND user_id = :user_id"
 )

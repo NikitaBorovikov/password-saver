@@ -64,8 +64,8 @@ func (r *PasswordRepository) Update(p *model.Password) error {
 	return nil
 }
 
-func (r *PasswordRepository) Delete(passwordID int64) error {
-	_, err := r.db.Exec(queryDelPassword, passwordID)
+func (r *PasswordRepository) Delete(passwordID, userID int64) error {
+	_, err := r.db.Exec(queryDelPassword, passwordID, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return apperrors.ErrPasswordNotExists

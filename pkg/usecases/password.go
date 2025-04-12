@@ -107,8 +107,8 @@ func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID i
 	return nil
 }
 
-func (uc *PasswordUseCase) Delete(passwordID int64) error {
-	if err := uc.PasswordRepository.Delete(passwordID); err != nil {
+func (uc *PasswordUseCase) Delete(passwordID, userID int64) error {
+	if err := uc.PasswordRepository.Delete(passwordID, userID); err != nil {
 		return handlerPasswordRepositoryError(err)
 	}
 	return nil

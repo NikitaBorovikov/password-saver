@@ -165,6 +165,13 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Security SessionCookie
 // @Router /passwords/ [delete]
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID, ok := getUserIDFromContext(r.Context())
+	if !ok {
+		logrus.Error(logs.FailedToGetUserIDFromCtx)
+		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		return
+	}
+
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
 		logrus.Error(logs.FailedToGetPasswordIDFromURL)
@@ -172,7 +179,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.PasswordUseCase.Delete(passwordID); err != nil {
+	if err := h.PasswordUseCase.Delete(passwordID, userID); err != nil {
 		sendErrorRespose(w, r, http.StatusInternalServerError, err)
 		return
 	}
