@@ -19,7 +19,7 @@ func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 		handlers.LoggingMiddleware(),
 	)
 
-	// Auth routes with strict rate limiting
+	// Auth routes
 	r.Route("/auth", func(r chi.Router) {
 		r.Use(handlers.RateLimiterMiddleware(cfg.RateLimits.Auth))
 		authRoutes(r, *h.UserHandler)
@@ -79,4 +79,5 @@ func passwordRoutes(r chi.Router, h handlers.PasswordHandler) {
 
 func openRouters(r chi.Router, h handlers.Handlers) {
 	r.Get("/gen", h.PasswordHandler.Generate)
+	r.Get("/health", h.SystemHandler.HealthCheck)
 }
