@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type (
 	PasswordResponse struct {
 		PasswordID int64  `json:"password_id"`
@@ -19,6 +21,12 @@ type (
 
 	ErrorResponse struct {
 		Error string `json:"error"`
+	}
+
+	HealthCheckResponse struct {
+		Status  string    `json:"status"`
+		Details string    `json:"details"`
+		Time    time.Time `json:"time"`
 	}
 )
 

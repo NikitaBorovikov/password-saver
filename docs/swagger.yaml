@@ -23,6 +23,15 @@ definitions:
       userID:
         type: integer
     type: object
+  dto.HealthCheckResponse:
+    properties:
+      details:
+        type: string
+      status:
+        type: string
+      time:
+        type: string
+    type: object
   dto.PasswordRequest:
     properties:
       login:
@@ -159,6 +168,23 @@ paths:
       summary: Generate password
       tags:
       - Passwords
+  /health:
+    get:
+      description: Сhecks the API operation status.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HealthCheckResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/dto.HealthCheckResponse'
+      summary: Health Checking
+      tags:
+      - System
   /passwords/:
     delete:
       description: delete user's password by user id from context and password ID

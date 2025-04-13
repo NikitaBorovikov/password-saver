@@ -17,12 +17,21 @@ func newSystemHandler(uc *usecases.SystemUseCase) *SystemHandler {
 	}
 }
 
+// @Summary Health Checking
+// @Description Сhecks the API operation status.
+// @Tags System
+// @Produce json
+// @Success 200 {object} dto.HealthCheckResponse
+// @Failure 503 {object} dto.HealthCheckResponse
+// @Router /health [get]
 func (h *SystemHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	if err := h.SystemUseCase.PingDb(); err != nil {
-		logrus.Errorf("health check: ping db err: %v", err)
-		sendErrorRespose(w, r, http.StatusServiceUnavailable, err)
+	healthCheckResponse, err := h.SystemUseCase.HealthCheck()
+	if err != nil {
+		sendOKResponse(w, r, http.StatusServiceUnavailable, healthCheckResponse)
+		logrus.Errorf("health checking with err: %v", err)
 		return
 	}
-	sendOKResponse(w, r, http.StatusOK, nil)
-	logrus.Info("health check: ok")
+
+	sendOKResponse(w, r, http.StatusOK, healthCheckResponse)
+	logrus.Info("health checking: ok")
 }
