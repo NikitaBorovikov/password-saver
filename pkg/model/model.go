@@ -1,6 +1,8 @@
 package model
 
-import "password-saver/pkg/dto"
+import (
+	"password-saver/pkg/dto"
+)
 
 type (
 	Password struct {
@@ -32,5 +34,9 @@ type (
 		Update(u *User) error
 		Delete(userID int64) error
 		GetByID(userID int64) (*User, error)
+	}
+
+	SystemRepository interface {
+		PingDB() error
 	}
 )

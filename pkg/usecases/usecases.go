@@ -8,11 +8,13 @@ import (
 type UseCases struct {
 	UserUseCase     *UserUseCase
 	PasswordUseCase *PasswordUseCase
+	SystemUseCase   *SystemUseCase
 }
 
 func InitUseCases(r *repository.Repository, cfg *config.EncryptKeys) *UseCases {
 	return &UseCases{
-		UserUseCase:     NewUserUseCase(r.UserRepository),
-		PasswordUseCase: NewPasswordUseCase(r.PasswordRepository, cfg),
+		UserUseCase:     newUserUseCase(r.UserRepository),
+		PasswordUseCase: newPasswordUseCase(r.PasswordRepository, cfg),
+		SystemUseCase:   newSystemUseCase(r.SystemRepository),
 	}
 }

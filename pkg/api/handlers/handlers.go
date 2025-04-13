@@ -10,12 +10,13 @@ import (
 	"github.com/go-chi/render"
 )
 
-type contextKey string
-
 type Handlers struct {
 	UserHandler     *UserHandler
 	PasswordHandler *PasswordHandler
+	SystemHandler   *SystemHandler
 }
+
+type contextKey string
 
 const (
 	UserIDCtx contextKey = "userID"
@@ -25,6 +26,7 @@ func InitHandlers(uc *usecases.UseCases, session *session.SessionManager) *Handl
 	return &Handlers{
 		UserHandler:     newUserHandler(uc.UserUseCase, session),
 		PasswordHandler: newPasswordHandler(uc.PasswordUseCase),
+		SystemHandler:   newSystemHandler(uc.SystemUseCase),
 	}
 }
 

@@ -21,7 +21,7 @@ type PasswordUseCase struct {
 	cfg                *config.EncryptKeys
 }
 
-func NewPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
+func newPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
 	return &PasswordUseCase{
 		PasswordRepository: pr,
 		cfg:                cfg,
