@@ -82,5 +82,11 @@ If the application is being launched for the first time, migrations must be appl
 make migrate
 ```
 
-### 5. Documentation 
+## Documentation 
 To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).
+
+### API
+- To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).
+
+## Database
+- [DB Diagram](docs\db_diagram.png)
