@@ -83,10 +83,9 @@ make migrate
 ```
 
 ## Documentation 
-To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).
 
 ### API
 - To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).
 
 ## Database
-- [DB Diagram](docs\db_diagram.png)
+- [DB Diagram](docs/db_diagram.png)
