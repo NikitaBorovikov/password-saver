@@ -16,8 +16,8 @@ const (
 
 // Custom repository errors
 var (
-	ErrUserNotFound        = errors.New("failed to find user")
-	ErrDuplicateUser       = errors.New("user already exists")
+	ErrNotFound            = errors.New("failed to find data")
+	ErrDuplicateData       = errors.New("data already exists")
 	ErrConnectionFailed    = errors.New("database connection failed")
 	ErrPingFailed          = errors.New("failed to ping database")
 	ErrForeignKeyViolation = errors.New("referenced entity not found")
@@ -28,7 +28,7 @@ var (
 // Handles SQL errors and returns custom repository errors
 func handleSQLErrors(err error) error {
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrUserNotFound
+		return ErrNotFound
 	}
 
 	if strings.Contains(err.Error(), "scan") {
@@ -40,7 +40,7 @@ func handleSQLErrors(err error) error {
 	if errors.As(err, &pqErr) {
 		switch pqErr.Code {
 		case uniqueViolationErrCode:
-			return ErrDuplicateUser
+			return ErrDuplicateData
 		case pingFailedCode:
 			return ErrConnectionFailed
 		case foreignKeyViolationCode:

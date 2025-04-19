@@ -2,11 +2,9 @@ package usecases
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"password-saver/pkg/config"
 	"password-saver/pkg/dto"
-	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
@@ -38,19 +36,19 @@ func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 
 	if err := validateForPassword(req); err != nil {
 		logrus.Errorf(logs.FailedToValidatePassword, err)
-		return err
+		return ErrInvalidInput
 	}
 
 	encPasswordData, err := uc.encryptFields(req)
 	if err != nil {
 		logrus.Error(err)
-		return apperrors.ErrServerInternal
+		return ErrEcryptData
 	}
 
 	password := newPassword(0, userID, encPasswordData)
 
 	if err := uc.PasswordRepository.Save(password); err != nil {
-		return handlerPasswordRepositoryError(err)
+		return handleRepositoryErrors(err)
 	}
 	return nil
 }
@@ -58,12 +56,12 @@ func (uc *PasswordUseCase) Save(req *dto.PasswordRequest, userID int64) error {
 func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) {
 	userPasswords, err := uc.PasswordRepository.GetAll(userID)
 	if err != nil {
-		return nil, handlerPasswordRepositoryError(err)
+		return nil, handleRepositoryErrors(err)
 	}
 
 	passwordResponse, err := uc.makePasswordResponse(userPasswords)
 	if err != nil {
-		return nil, apperrors.ErrServerInternal
+		return nil, ErrMakePasswordResponse
 	}
 
 	return passwordResponse, nil
@@ -72,12 +70,12 @@ func (uc *PasswordUseCase) GetAll(userID int64) ([]dto.PasswordResponse, error) 
 func (uc *PasswordUseCase) GetByID(passwordID, userID int64) (*dto.PasswordResponse, error) {
 	userPassword, err := uc.PasswordRepository.GetByID(passwordID, userID)
 	if err != nil {
-		return nil, handlerPasswordRepositoryError(err)
+		return nil, handleRepositoryErrors(err)
 	}
 
 	passwordResponse, err := uc.decryptFields(*userPassword)
 	if err != nil {
-		return nil, apperrors.ErrServerInternal
+		return nil, ErrDecryptData
 	}
 
 	passwordResponse.PasswordID = passwordID
@@ -89,19 +87,19 @@ func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID i
 
 	if err := validateForPassword(req); err != nil {
 		logrus.Errorf(logs.FailedToValidatePassword, err)
-		return err
+		return ErrInvalidInput
 	}
 
 	encPasswordData, err := uc.encryptFields(req)
 	if err != nil {
 		logrus.Error(err)
-		return apperrors.ErrServerInternal
+		return ErrEcryptData
 	}
 
 	password := newPassword(0, userID, encPasswordData)
 
 	if err := uc.PasswordRepository.Update(password); err != nil {
-		return handlerPasswordRepositoryError(err)
+		return handleRepositoryErrors(err)
 	}
 
 	return nil
@@ -109,7 +107,7 @@ func (uc *PasswordUseCase) Update(req *dto.PasswordRequest, passwordID, userID i
 
 func (uc *PasswordUseCase) Delete(passwordID, userID int64) error {
 	if err := uc.PasswordRepository.Delete(passwordID, userID); err != nil {
-		return handlerPasswordRepositoryError(err)
+		return handleRepositoryErrors(err)
 	}
 	return nil
 }
@@ -118,7 +116,7 @@ func (uc *PasswordUseCase) Generate(ps *dto.GeneratePasswordRequest) (string, er
 
 	if err := validateGenPasswordSettings(ps); err != nil {
 		logrus.Errorf(logs.FailedToValidatePasswordSettings, err)
-		return "", apperrors.ErrValidateLengthPassword
+		return "", ErrInvalidInput
 	}
 
 	password := generation.GenNewPassword(ps)
@@ -210,7 +208,7 @@ func decryptData(encData string, encKey string) (string, error) {
 func validateForPassword(req *dto.PasswordRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return handleValidatePasswordErrors(err)
+		return err
 	}
 	return nil
 }
@@ -218,33 +216,9 @@ func validateForPassword(req *dto.PasswordRequest) error {
 func validateGenPasswordSettings(req *dto.GeneratePasswordRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return handleValidatePasswordErrors(err)
+		return err
 	}
 	return nil
-}
-
-func handleValidatePasswordErrors(err error) error {
-	var validateErrs validator.ValidationErrors
-
-	if !errors.As(err, &validateErrs) {
-		return apperrors.ErrValidatePassword
-	}
-
-	for _, e := range validateErrs {
-
-		switch e.Field() {
-		case "Service":
-			return apperrors.ErrValidateServiceField
-		case "Password":
-			return apperrors.ErrValidateSavePasswordField
-		case "Login":
-			return apperrors.ErrValidateLoginField
-		case "Length":
-			return apperrors.ErrValidateLengthPassword
-		}
-	}
-
-	return apperrors.ErrValidatePassword
 }
 
 func newPassword(passwordID, userID int64, ecp *encPasswordData) *model.Password {
@@ -254,16 +228,5 @@ func newPassword(passwordID, userID int64, ecp *encPasswordData) *model.Password
 		EncPassword: ecp.password,
 		EncService:  ecp.service,
 		EncLogin:    &ecp.login,
-	}
-}
-
-func handlerPasswordRepositoryError(err error) error {
-	switch err {
-	case apperrors.ErrPasswordNotExists:
-		logrus.Error(err)
-		return apperrors.ErrPasswordNotExists
-	default:
-		logrus.Errorf(logs.InternalDBError, err)
-		return apperrors.ErrDatabaseInternal
 	}
 }

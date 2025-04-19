@@ -1,9 +1,7 @@
 package usecases
 
 import (
-	"errors"
 	"password-saver/pkg/dto"
-	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
 	"password-saver/pkg/model"
 	"time"
@@ -27,22 +25,21 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 
 	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf(logs.FailedToValidateUser, err)
-		return 0, err
+		return 0, ErrInvalidInput
 	}
 
 	hashPassword, err := hashPassword(req.Password)
 	if err != nil {
 		logrus.Errorf(logs.FailedToHashPassword, err)
-		return 0, apperrors.ErrHashPassword
+		return 0, ErrHashPassword
 	}
 
 	regDate := getTodayDate()
-
 	user := newUser(0, req.Email, hashPassword, regDate)
 
 	userID, err := uc.UserRepository.Registration(user)
 	if err != nil {
-		return 0, handleUserRepositoryError(err, req.Email)
+		return 0, handleRepositoryErrors(err)
 	}
 
 	return userID, nil
@@ -52,21 +49,20 @@ func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
 
 	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf(logs.FailedToValidateUser, err)
-		return nil, err
+		return nil, ErrInvalidInput
 	}
 
 	user, err := uc.UserRepository.LogIn(req)
 	if err != nil {
-		return nil, handleUserRepositoryError(err, req.Email)
+		return nil, handleRepositoryErrors(err)
 	}
 
 	if !comparePassword(req.Password, user.HashPassword) {
 		logrus.Errorf(logs.FailedToComparePasswords, err)
-		return nil, apperrors.ErrComparePasswords
+		return nil, ErrComparePasswords
 	}
 
 	sanitizeUserStruct(user)
-
 	return user, nil
 }
 
@@ -74,27 +70,27 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		return handleUserRepositoryError(err, userID)
+		return handleRepositoryErrors(err)
 	}
 
 	if err := validateUpdateRequest(req); err != nil {
 		logrus.Errorf(logs.FailedToValidateUser, err)
-		return err
+		return ErrInvalidInput
 	}
 
 	if !comparePassword(req.OldPassword, user.HashPassword) {
 		logrus.Errorf(logs.FailedToComparePasswords, err)
-		return apperrors.ErrComparePasswords
+		return ErrComparePasswords
 	}
 
 	user.HashPassword, err = hashPassword(req.NewPassword)
 	if err != nil {
 		logrus.Errorf(logs.FailedToHashPassword, err)
-		return apperrors.ErrHashPassword
+		return ErrHashPassword
 	}
 
 	if err := uc.UserRepository.Update(user); err != nil {
-		return handleUserRepositoryError(err, userID)
+		return handleRepositoryErrors(err)
 	}
 
 	return nil
@@ -103,7 +99,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
-		return nil, handleUserRepositoryError(err, userID)
+		return nil, handleRepositoryErrors(err)
 	}
 	sanitizeUserStruct(user)
 
@@ -112,7 +108,7 @@ func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
 
 func (uc *UserUseCase) Delete(userID int64) error {
 	if err := uc.UserRepository.Delete(userID); err != nil {
-		return handleUserRepositoryError(err, userID)
+		return handleRepositoryErrors(err)
 	}
 
 	return nil
@@ -120,9 +116,8 @@ func (uc *UserUseCase) Delete(userID int64) error {
 
 func validateAuthRequest(req *dto.AuthRequest) error {
 	validate := validator.New()
-
 	if err := validate.Struct(req); err != nil {
-		return handleValidateAuthErrors(err)
+		return err
 	}
 	return nil
 }
@@ -130,48 +125,9 @@ func validateAuthRequest(req *dto.AuthRequest) error {
 func validateUpdateRequest(req *dto.UpdateUserRequest) error {
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return handleValidateUpdateUserError(err)
+		return err
 	}
-
 	return nil
-}
-
-func handleValidateAuthErrors(err error) error {
-	var validateErrs validator.ValidationErrors
-
-	if !errors.As(err, &validateErrs) {
-		return apperrors.ErrValidateUser
-	}
-
-	for _, e := range validateErrs {
-
-		switch e.Field() {
-		case "Email":
-			return apperrors.ErrValidateEmailField
-		case "Password":
-			return apperrors.ErrValidateUserPasswordField
-		}
-	}
-	return apperrors.ErrValidateUser
-}
-
-func handleValidateUpdateUserError(err error) error {
-	var validateErrs validator.ValidationErrors
-
-	if !errors.As(err, &validateErrs) {
-		return apperrors.ErrValidateUser
-	}
-
-	for _, e := range validateErrs {
-
-		switch e.Field() {
-		case "OldPassword":
-			return apperrors.ErrValidateOldPasswordField
-		case "NewPassword":
-			return apperrors.ErrValidateNewPasswordField
-		}
-	}
-	return apperrors.ErrValidateUser
 }
 
 func getTodayDate() string {
@@ -205,21 +161,5 @@ func newUser(userID int64, email, hashPassword, regDate string) *model.User {
 		Email:        email,
 		HashPassword: hashPassword,
 		RegDate:      regDate,
-	}
-}
-
-func handleUserRepositoryError(err error, data interface{}) error {
-	switch err {
-	case apperrors.ErrUserNotFound:
-		logrus.Errorf("userID: %d %v", data, err)
-		return apperrors.ErrUserNotFound
-
-	case apperrors.ErrDuplicateUser:
-		logrus.Errorf("email: %s %v", data, err)
-		return apperrors.ErrDuplicateUser
-
-	default:
-		logrus.Errorf(logs.InternalDBError, err)
-		return apperrors.ErrDatabaseInternal
 	}
 }
