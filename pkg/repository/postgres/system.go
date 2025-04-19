@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"fmt"
 	"password-saver/pkg/model"
 
 	"github.com/jmoiron/sqlx"
@@ -19,7 +18,7 @@ func NewSystemRepository(db *sqlx.DB) model.SystemRepository {
 
 func (r *SystemRepository) PingDB() error {
 	if err := r.db.DB.Ping(); err != nil {
-		return fmt.Errorf("failed to ping DB: %v", err)
+		return ErrPingFailed
 	}
 	return nil
 }
