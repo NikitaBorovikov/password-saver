@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"password-saver/pkg/api/session"
 	"password-saver/pkg/dto"
-	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
 	"password-saver/pkg/usecases"
 
@@ -42,13 +41,14 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	req, err := decodeAuthRequest(r)
 	if err != nil {
 		logrus.Errorf(logs.FailedToDecodeRequest, err)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrDecodeRequest)
 		return
 	}
 
 	userID, err := h.UserUseCase.Registration(req)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -73,19 +73,20 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 	req, err := decodeAuthRequest(r)
 	if err != nil {
 		logrus.Errorf(logs.FailedToDecodeRequest, err)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrDecodeRequest)
 		return
 	}
 
 	user, err := h.UserUseCase.LogIn(req)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusUnauthorized, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
 	if err := setUserSession(w, r, h.Session, user.UserID); err != nil {
 		logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
@@ -108,18 +109,19 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	req, err := decodeUpdateRequest(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrDecodeRequest)
 		return
 	}
 
 	if err := h.UserUseCase.Update(req, userID); err != nil {
-		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -140,13 +142,14 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	user, err := h.UserUseCase.GetByID(userID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -169,12 +172,13 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	if err := h.UserUseCase.Delete(userID); err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -196,7 +200,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := s.Store.Get(r, s.Name)
 	if err != nil || session == nil {
 		logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
@@ -204,7 +208,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	if err := session.Save(r, w); err != nil {
 		logrus.Errorf("%s: %v", logs.FailedToSaveSession, err)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 

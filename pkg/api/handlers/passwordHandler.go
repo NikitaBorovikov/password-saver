@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 	"password-saver/pkg/dto"
-	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
 	"password-saver/pkg/usecases"
 	"strconv"
@@ -37,19 +36,20 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
 		logrus.Errorf(logs.FailedToDecodeRequest, err)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	if err := h.PasswordUseCase.Save(req, userID); err != nil {
-		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -70,13 +70,14 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	userPasswords, err := h.PasswordUseCase.GetAll(userID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -98,20 +99,21 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
 		logrus.Error(logs.FailedToGetPasswordIDFromURL)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrInvalidURLParam)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	passwordResponse, err := h.PasswordUseCase.GetByID(passwordID, userID)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -135,25 +137,26 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	req, err := decodePasswordRequest(r)
 	if err != nil {
 		logrus.Errorf(logs.FailedToDecodeRequest, err)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrDecodeRequest)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	if err := h.PasswordUseCase.Update(req, passwordID, userID); err != nil {
-		sendErrorRespose(w, r, http.StatusUnprocessableEntity, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -175,19 +178,20 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 		return
 	}
 
 	passwordID, err := getPasswordIDFromURL(r)
 	if err != nil {
 		logrus.Error(logs.FailedToGetPasswordIDFromURL)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	if err := h.PasswordUseCase.Delete(passwordID, userID); err != nil {
-		sendErrorRespose(w, r, http.StatusInternalServerError, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 
@@ -209,13 +213,14 @@ func (h *PasswordHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	ps, err := getPasswordSettingsFromURL(r)
 	if err != nil {
 		logrus.Errorf(logs.FailedToGetPasswordSettings, err)
-		sendErrorRespose(w, r, http.StatusBadRequest, apperrors.ErrInvalidURLParam)
+		sendErrorRespose(w, r, http.StatusBadRequest, ErrInvalidInput)
 		return
 	}
 
 	password, err := h.PasswordUseCase.Generate(ps)
 	if err != nil {
-		sendErrorRespose(w, r, http.StatusBadRequest, err)
+		statusCode, apiErr := handleUsecaseErrors(err)
+		sendErrorRespose(w, r, statusCode, apiErr)
 		return
 	}
 

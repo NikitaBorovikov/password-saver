@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"password-saver/pkg/api/session"
-	apperrors "password-saver/pkg/errors"
 	"password-saver/pkg/logs"
 	"time"
 
@@ -25,21 +24,21 @@ func AuthMiddleware(sm *session.SessionManager) func(http.Handler) http.Handler 
 			session, err := sm.Store.Get(r, sm.Name)
 			if err != nil || session == nil {
 				logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
-				sendErrorRespose(w, r, http.StatusInternalServerError, apperrors.ErrServerInternal)
+				sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
 				return
 			}
 
 			auth, ok := session.Values[sessionAuthenticated].(bool)
 			if !ok || !auth {
 				logrus.Error(logs.UnauthenticatedUser)
-				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
+				sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 				return
 			}
 
 			userID, ok := session.Values[sessionUserIDKey].(int64)
 			if !ok {
 				logrus.Error(logs.FailedToGetUserIDFromSession)
-				sendErrorRespose(w, r, http.StatusUnauthorized, apperrors.ErrNotAuthenticated)
+				sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 				return
 			}
 
