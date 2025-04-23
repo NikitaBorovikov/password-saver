@@ -16,13 +16,17 @@ const (
 
 // Custom repository errors
 var (
+	// Query errors
 	ErrNotFound            = errors.New("failed to find data")
 	ErrDuplicateData       = errors.New("data already exists")
-	ErrConnectionFailed    = errors.New("database connection failed")
-	ErrPingFailed          = errors.New("failed to ping database")
 	ErrForeignKeyViolation = errors.New("referenced entity not found")
-	ErrScanFailed          = errors.New("failed to scan data")
-	ErrInternalDB          = errors.New("internal database error")
+	// Connection errors
+	ErrConnectionFailed = errors.New("database connection failed")
+	ErrPingFailed       = errors.New("failed to ping database")
+	// Data pocessing errors
+	ErrScanFailed = errors.New("failed to scan data")
+
+	ErrInternalDB = errors.New("internal database error")
 )
 
 // Handles SQL errors and returns custom repository errors
