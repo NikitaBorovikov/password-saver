@@ -109,7 +109,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -142,7 +142,7 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -172,7 +172,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -200,7 +200,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := s.Store.Get(r, s.Name)
 	if err != nil || session == nil {
 		logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 

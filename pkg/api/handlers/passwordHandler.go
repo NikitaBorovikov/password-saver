@@ -36,7 +36,7 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -137,7 +137,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -178,7 +178,7 @@ func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
