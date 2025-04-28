@@ -86,7 +86,7 @@ make migrate
 
 ### API
 - To view the API documentation, you can use swagger (go to http://localhost:8081/swagger/index.html after the server is started).
-- [Swagger files](dosc/)
+- [Swagger files](docs/)
 
 ### Database
 - [DB Diagram](docs/db_diagram.png)
