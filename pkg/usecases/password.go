@@ -9,6 +9,7 @@ import (
 	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
 	"password-saver/pkg/usecases/generation"
+	"sync"
 
 	"github.com/go-playground/validator"
 	"github.com/sirupsen/logrus"
@@ -143,21 +144,53 @@ func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) 
 
 func (uc *PasswordUseCase) encryptFields(req *dto.PasswordRequest) (*encPasswordData, error) {
 	epd := &encPasswordData{}
-	var err error
 
-	epd.password, err = encryption.Encrypt([]byte(req.Password), []byte(uc.cfg.EncPasswordKey))
-	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt password: %v", err)
-	}
+	errChan := make(chan error, 3)
+	var wg sync.WaitGroup
+	wg.Add(3)
 
-	epd.service, err = encryption.Encrypt([]byte(req.Service), []byte(uc.cfg.EncServiceKey))
-	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt service: %v", err)
-	}
+	// Encrypt password
+	go func() {
+		defer wg.Done()
+		var err error
+		epd.password, err = encryption.Encrypt([]byte(req.Password), []byte(uc.cfg.EncPasswordKey))
+		if err != nil {
+			errChan <- fmt.Errorf("failed to ecrypt password: %v", err)
+			return
+		}
+	}()
 
-	epd.login, err = encryption.Encrypt([]byte(req.Login), []byte(uc.cfg.EncLoginKey))
-	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt login: %v", err)
+	// Encrypt service
+	go func() {
+		defer wg.Done()
+		var err error
+		epd.service, err = encryption.Encrypt([]byte(req.Service), []byte(uc.cfg.EncServiceKey))
+		if err != nil {
+			errChan <- fmt.Errorf("failed to encrypt service: %v", err)
+			return
+		}
+	}()
+
+	// Encrypt login
+	go func() {
+		defer wg.Done()
+		var err error
+		epd.login, err = encryption.Encrypt([]byte(req.Login), []byte(uc.cfg.EncLoginKey))
+		if err != nil {
+			errChan <- fmt.Errorf("failed to encrypt login: %v", err)
+			return
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(errChan) // Close chanel after all the gorutines are completed
+	}()
+
+	for err := range errChan {
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return epd, nil
@@ -166,28 +199,60 @@ func (uc *PasswordUseCase) encryptFields(req *dto.PasswordRequest) (*encPassword
 func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.PasswordResponse, error) {
 
 	var passwordResponse dto.PasswordResponse
-	var err error
 
-	passwordResponse.Password, err = decryptData(password.EncPassword, uc.cfg.EncPasswordKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt password: %v", err)
-	}
+	errChan := make(chan error, 3)
+	var wg sync.WaitGroup
+	wg.Add(3)
 
-	passwordResponse.Service, err = decryptData(password.EncService, uc.cfg.EncServiceKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt service: %v", err)
-	}
-
-	// if login is not NULL, then we decrypt it, otherwise we set the default value
-	if password.EncLogin != nil {
-		passwordResponse.Login, err = decryptData(*password.EncLogin, uc.cfg.EncLoginKey)
+	// Decrypt password
+	go func() {
+		defer wg.Done()
+		var err error
+		passwordResponse.Password, err = decryptData(password.EncPassword, uc.cfg.EncPasswordKey)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decrypt login: %v", err)
+			errChan <- fmt.Errorf("faield to decrypt password: %v", err)
+			return
 		}
-	} else {
-		passwordResponse.Login = ""
-	}
+	}()
 
+	// Decrypt service
+	go func() {
+		defer wg.Done()
+		var err error
+		passwordResponse.Service, err = decryptData(password.EncService, uc.cfg.EncServiceKey)
+		if err != nil {
+			errChan <- fmt.Errorf("failed to decrypt service: %v", err)
+			return
+		}
+	}()
+
+	// Decrypt login
+	go func() {
+		defer wg.Done()
+		var err error
+		// if login is not NULL, then we decrypt it, otherwise we set the default value
+		if password.EncLogin != nil {
+			passwordResponse.Login, err = decryptData(*password.EncLogin, uc.cfg.EncLoginKey)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to decrypt login: %v", err)
+				return
+			}
+		} else {
+			passwordResponse.Login = ""
+			errChan <- nil
+		}
+	}()
+
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+
+	for err := range errChan {
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &passwordResponse, nil
 }
 
