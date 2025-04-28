@@ -34,7 +34,7 @@ func newUserHandler(uc *usecases.UserUseCase, session *session.SessionManager) *
 // @Produce json
 // @Param input body dto.AuthRequest true "User registration data"
 // @Success 201 {object} dto.GetUserInfoResponse
-// @Failure 400,422 {object} dto.ErrorResponse
+// @Failure 400,409,422,500 {object} dto.ErrorResponse
 // @Router /auth/reg [post]
 func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
@@ -66,7 +66,7 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param input body dto.AuthRequest true "User log in data"
 // @Success 200 {integer} {userID}
-// @Failure 400,401,500 {object} dto.ErrorResponse
+// @Failure 400,404,422,500 {object} dto.ErrorResponse
 // @Router /auth/login [post]
 func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 
@@ -102,7 +102,7 @@ func (h *UserHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param input body dto.UpdateUserRequest true "Old and new user's passwords"
 // @Success 200
-// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Failure 400,401,404,422,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /profile/ [put]
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +135,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Tags User
 // @Produce json
 // @Success 200 {object} dto.GetUserInfoResponse
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 401,404,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /profile/ [get]
 func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +165,7 @@ func (h *UserHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Tags User
 // @Produce json
 // @Success 204
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 401,404,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /profile/ [delete]
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -192,7 +192,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags User
 // @Produce json
 // @Success 204
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 401,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /profile/logout [post]
 func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {

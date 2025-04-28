@@ -29,7 +29,7 @@ func newPasswordHandler(uc *usecases.PasswordUseCase) *PasswordHandler {
 // @Produce json
 // @Param input body dto.PasswordRequest true "Password data"
 // @Success 201
-// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Failure 400,401,422,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /passwords/ [post]
 func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func (h *PasswordHandler) Save(w http.ResponseWriter, r *http.Request) {
 // @Tags Passwords
 // @Produce json
 // @Success 200 {object} []dto.PasswordResponse
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 401,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /passwords/ [get]
 func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -92,14 +92,14 @@ func (h *PasswordHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param passwordID path string true "password ID"
 // @Success 200 {object} dto.PasswordResponse
-// @Failure 500 {object} dto.ErrorResponse
+// @Failure 400,401,404,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /passwords/{passwordID} [get]
 func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	userID, ok := getUserIDFromContext(r.Context())
 	if !ok {
 		logrus.Error(logs.FailedToGetUserIDFromCtx)
-		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		sendErrorRespose(w, r, http.StatusUnauthorized, ErrNotAuthenticated)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (h *PasswordHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param passwordID path string true "password ID"
 // @Param input body dto.PasswordRequest true "New password data"
 // @Success 200
-// @Failure 400,422,500 {object} dto.ErrorResponse
+// @Failure 400,401,404,422,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /passwords/ [put]
 func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -171,7 +171,7 @@ func (h *PasswordHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param passwordID path string true "password ID"
 // @Success 204
-// @Failure 400,500 {object} dto.ErrorResponse
+// @Failure 400,401,404,500 {object} dto.ErrorResponse
 // @Security SessionCookie
 // @Router /passwords/ [delete]
 func (h *PasswordHandler) Delete(w http.ResponseWriter, r *http.Request) {
