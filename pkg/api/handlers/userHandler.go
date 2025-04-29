@@ -52,6 +52,12 @@ func (h *UserHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := setUserSession(w, r, h.Session, userID); err != nil {
+		logrus.Errorf("%s: %v", logs.FailedToGetSession, err)
+		sendErrorRespose(w, r, http.StatusInternalServerError, ErrInternalServer)
+		return
+	}
+
 	userInfo := dto.NewGetUserInfoResponse(userID, req.Email)
 
 	sendOKResponse(w, r, http.StatusCreated, userInfo)
