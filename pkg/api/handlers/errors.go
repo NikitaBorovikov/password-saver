@@ -12,7 +12,7 @@ var (
 	ErrInvalidInput     = errors.New("invalid input data")
 	ErrorNotFound       = errors.New("requested data not found")
 	ErrAlreadyExists    = errors.New("data already exists")
-	ErrWrongPassword    = errors.New("wrong password or email")
+	ErrWrongPassword    = errors.New("login failed")
 	ErrNotAuthenticated = errors.New("user is not authenticated")
 	// Server errors
 	ErrDataProcessing     = errors.New("data processing error")
