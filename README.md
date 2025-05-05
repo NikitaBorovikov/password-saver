@@ -62,7 +62,7 @@ Copy the template from the repository:
 cp env.example .env       # For production
 cp env.example .env.dev   # For development
 ```
-Open the .env file and fill in the required values:
+
 Open ```.env``` and ```.env.dev``` files and fill in the required values.
 
 ### 3. Build and run the application:
@@ -79,8 +79,9 @@ The server will be running on port ```8081```
 ### 4. Run db migration
 If the application is being launched for the first time, migrations must be applied to the database:
 ```
-make migrate
+migrate -path pkg/db/migrations -database 'postgres://your_user:your_password@0.0.0.0:5432/your_dbname?sslmode=disable' up
 ```
+Fill in ```your_user```, ```your_password```, ```your_dbname``` values.
 
 ## Documentation 
 
