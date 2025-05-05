@@ -13,6 +13,7 @@ services:
       SESSION_NAME: ${SESSION_NAME}
       PASSWORD_ENC_KEY: ${PASSWORD_ENC_KEY}
       SERVICE_ENC_KEY: ${SERVICE_ENC_KEY}
+      LOGIN_ENC_KEY: ${LOGIN_ENC_KEY}
     ports:
       - "8081:8081"
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
