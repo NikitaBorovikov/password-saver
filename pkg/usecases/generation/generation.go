@@ -12,13 +12,7 @@ const (
 )
 
 func GenNewPassword(ps *dto.GeneratePasswordRequest) string {
-	var charSet string
-
-	if ps.UseSpecialSymbols {
-		charSet = letters + digits + specials
-	} else {
-		charSet = letters + digits
-	}
+	charSet := makeCharSet(ps.UseSpecialSymbols)
 
 	password := make([]byte, ps.Length)
 	for i := range password {
@@ -26,4 +20,15 @@ func GenNewPassword(ps *dto.GeneratePasswordRequest) string {
 	}
 
 	return string(password)
+}
+
+func makeCharSet(useSpecialSymbols bool) string {
+	var charSet string
+	if useSpecialSymbols {
+		charSet = letters + digits + specials
+	} else {
+		charSet = letters + digits
+	}
+
+	return charSet
 }
