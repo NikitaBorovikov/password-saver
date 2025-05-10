@@ -1,7 +1,9 @@
 http:
   port: ":8081"
-  middleware_timeout: 15
+  middleware_timeout: 15s 
+  read_timeout: 5s # maximum query reading time
+  idle_timeout: 60s # closing inactive connections
 rate_limits:
-  auth: 5 #requests per minute for the same IP
+  auth: 5 # requests per minute for the same IP
   close_routes: 30
   open_routes: 40

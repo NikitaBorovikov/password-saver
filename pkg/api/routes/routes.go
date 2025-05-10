@@ -17,7 +17,7 @@ func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 
 	// Global middleware stack
 	r.Use(
-		middleware.Timeout(time.Duration(cfg.Http.MiddlewareTimeout)*time.Second),
+		middleware.Timeout(cfg.Http.MiddlewareTimeout*time.Second),
 		handlers.CORSMiddleware(),
 		handlers.LoggingMiddleware(),
 	)

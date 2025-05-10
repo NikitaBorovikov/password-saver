@@ -18,8 +18,10 @@ func NewServer(h handlers.Handlers, cfg *config.Config) *Server {
 	router := routes.InitRoutes(h, cfg)
 	srv := &Server{
 		httpServer: &http.Server{
-			Addr:    cfg.Http.Port,
-			Handler: router,
+			Addr:        cfg.Http.Port,
+			Handler:     router,
+			ReadTimeout: cfg.Http.ReadTimeout,
+			IdleTimeout: cfg.Http.IdleTimeout,
 		},
 	}
 

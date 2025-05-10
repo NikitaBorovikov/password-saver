@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -24,10 +25,12 @@ type (
 	}
 
 	Http struct {
-		Port              string `yaml:"port"`
-		MiddlewareTimeout int    `yaml:"middleware_timeout"`
-		SessionKey        string `env:"SESSION_KEY"`
-		SessionName       string `env:"SESSION_NAME"`
+		Port              string        `yaml:"port"`
+		MiddlewareTimeout time.Duration `yaml:"middleware_timeout"`
+		ReadTimeout       time.Duration `yaml:"read_timeout"`
+		IdleTimeout       time.Duration `yaml:"idle_timeout"`
+		SessionKey        string        `env:"SESSION_KEY"`
+		SessionName       string        `env:"SESSION_NAME"`
 	}
 
 	RateLimits struct {
