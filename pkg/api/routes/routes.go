@@ -20,6 +20,7 @@ func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 		middleware.Timeout(cfg.Http.MiddlewareTimeout*time.Second),
 		handlers.CORSMiddleware(),
 		handlers.LoggingMiddleware(),
+		middleware.Recoverer,
 	)
 
 	// Auth routes
