@@ -3,10 +3,12 @@ package routes
 import (
 	"password-saver/pkg/api/handlers"
 	"password-saver/pkg/config"
+	"time"
 
 	_ "password-saver/docs"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -15,6 +17,7 @@ func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 
 	// Global middleware stack
 	r.Use(
+		middleware.Timeout(time.Duration(cfg.Http.MiddlewareTimeout)*time.Second),
 		handlers.CORSMiddleware(),
 		handlers.LoggingMiddleware(),
 	)

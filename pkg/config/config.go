@@ -24,9 +24,10 @@ type (
 	}
 
 	Http struct {
-		Port        string `yaml:"port"`
-		SessionKey  string `env:"SESSION_KEY"`
-		SessionName string `env:"SESSION_NAME"`
+		Port              string `yaml:"port"`
+		MiddlewareTimeout int    `yaml:"middleware_timeout"`
+		SessionKey        string `env:"SESSION_KEY"`
+		SessionName       string `env:"SESSION_NAME"`
 	}
 
 	RateLimits struct {
