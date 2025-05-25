@@ -14,6 +14,11 @@ type (
 		EncryptKeys EncryptKeys
 		Http        Http       `yaml:"http"`
 		RateLimits  RateLimits `yaml:"rate_limits"`
+		Telegram    Telegram
+	}
+
+	Telegram struct {
+		Token string `env:"TG_TOKEN"`
 	}
 
 	Postgres struct {
@@ -79,6 +84,10 @@ func ReadFromEnv(cfg *Config) error {
 	}
 
 	if err := cleanenv.ReadEnv(&cfg.Http); err != nil {
+		return err
+	}
+
+	if err := cleanenv.ReadEnv(&cfg.Telegram); err != nil {
 		return err
 	}
 
