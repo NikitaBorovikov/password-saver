@@ -5,9 +5,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"password-saver/pkg/dto"
 	"password-saver/pkg/infrastructure/api/session"
-	"password-saver/pkg/logs"
+	"password-saver/pkg/infrastructure/dto"
+	"password-saver/pkg/infrastructure/logs"
 	"password-saver/pkg/usecases"
 
 	"github.com/go-chi/render"

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"password-saver/pkg/dto"
+	"password-saver/pkg/infrastructure/dto"
 	"password-saver/pkg/usecases"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"

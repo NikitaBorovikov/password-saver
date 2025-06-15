@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 	"password-saver/pkg/infrastructure/api/session"
-	"password-saver/pkg/logs"
+	"password-saver/pkg/infrastructure/logs"
 	"time"
 
 	"github.com/go-chi/cors"

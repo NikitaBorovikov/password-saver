@@ -1,11 +1,11 @@
 package main
 
 import (
-	"password-saver/pkg/config"
-	"password-saver/pkg/db"
+	"password-saver/pkg/infrastructure/config"
+	"password-saver/pkg/infrastructure/db"
+	"password-saver/pkg/infrastructure/logs"
 	"password-saver/pkg/infrastructure/repository"
 	"password-saver/pkg/infrastructure/telegram"
-	"password-saver/pkg/logs"
 	"password-saver/pkg/usecases"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"

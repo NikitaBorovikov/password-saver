@@ -3,10 +3,10 @@ package usecases
 import (
 	"encoding/base64"
 	"fmt"
-	"password-saver/pkg/config"
 	"password-saver/pkg/core"
-	"password-saver/pkg/dto"
-	"password-saver/pkg/logs"
+	"password-saver/pkg/infrastructure/config"
+	"password-saver/pkg/infrastructure/dto"
+	"password-saver/pkg/infrastructure/logs"
 	"password-saver/pkg/usecases/encryption"
 	"password-saver/pkg/usecases/generation"
 	"sync"

@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"net/http"
-	"password-saver/pkg/dto"
-	"password-saver/pkg/logs"
+	"password-saver/pkg/infrastructure/dto"
+	"password-saver/pkg/infrastructure/logs"
 	"password-saver/pkg/usecases"
 	"strconv"
 
