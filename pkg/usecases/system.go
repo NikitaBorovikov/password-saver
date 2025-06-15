@@ -1,16 +1,16 @@
 package usecases
 
 import (
+	"password-saver/pkg/core"
 	"password-saver/pkg/dto"
-	"password-saver/pkg/model"
 	"time"
 )
 
 type SystemUseCase struct {
-	SystemRepository model.SystemRepository
+	SystemRepository core.SystemRepository
 }
 
-func newSystemUseCase(sr model.SystemRepository) *SystemUseCase {
+func newSystemUseCase(sr core.SystemRepository) *SystemUseCase {
 	return &SystemUseCase{
 		SystemRepository: sr,
 	}

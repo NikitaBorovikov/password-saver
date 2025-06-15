@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"password-saver/pkg/config"
+	"password-saver/pkg/core"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/logs"
-	"password-saver/pkg/model"
 	"password-saver/pkg/usecases/encryption"
 	"password-saver/pkg/usecases/generation"
 	"sync"
@@ -16,11 +16,11 @@ import (
 )
 
 type PasswordUseCase struct {
-	PasswordRepository model.PasswordRepository
+	PasswordRepository core.PasswordRepository
 	cfg                *config.EncryptKeys
 }
 
-func newPasswordUseCase(pr model.PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
+func newPasswordUseCase(pr core.PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
 	return &PasswordUseCase{
 		PasswordRepository: pr,
 		cfg:                cfg,
@@ -125,7 +125,7 @@ func (uc *PasswordUseCase) Generate(ps *dto.GeneratePasswordRequest) (string, er
 	return password, nil
 }
 
-func (uc *PasswordUseCase) makePasswordResponse(userPasswords []model.Password) ([]dto.PasswordResponse, error) {
+func (uc *PasswordUseCase) makePasswordResponse(userPasswords []core.Password) ([]dto.PasswordResponse, error) {
 	passwordResponse := make([]dto.PasswordResponse, 0, len(userPasswords))
 
 	for _, elem := range userPasswords {
@@ -196,7 +196,7 @@ func (uc *PasswordUseCase) encryptFields(req *dto.PasswordRequest) (*encPassword
 	return epd, nil
 }
 
-func (uc *PasswordUseCase) decryptFields(password model.Password) (*dto.PasswordResponse, error) {
+func (uc *PasswordUseCase) decryptFields(password core.Password) (*dto.PasswordResponse, error) {
 
 	var passwordResponse dto.PasswordResponse
 
@@ -286,8 +286,8 @@ func validateGenPasswordSettings(req *dto.GeneratePasswordRequest) error {
 	return nil
 }
 
-func newPassword(passwordID, userID int64, ecp *encPasswordData) *model.Password {
-	return &model.Password{
+func newPassword(passwordID, userID int64, ecp *encPasswordData) *core.Password {
+	return &core.Password{
 		PasswordID:  passwordID,
 		UserID:      userID,
 		EncPassword: ecp.password,

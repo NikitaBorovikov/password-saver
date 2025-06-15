@@ -5,11 +5,8 @@ import (
 	"password-saver/pkg/config"
 	"time"
 
-	_ "password-saver/docs"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
@@ -53,7 +50,7 @@ func InitRoutes(h handlers.Handlers, cfg *config.Config) *chi.Mux {
 	})
 
 	// Swagger documentation
-	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("doc.json")))
+	//r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("doc.json")))
 
 	return r
 }

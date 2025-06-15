@@ -1,9 +1,9 @@
 package usecases
 
 import (
+	"password-saver/pkg/core"
 	"password-saver/pkg/dto"
 	"password-saver/pkg/logs"
-	"password-saver/pkg/model"
 	"time"
 
 	"github.com/go-playground/validator"
@@ -12,10 +12,10 @@ import (
 )
 
 type UserUseCase struct {
-	UserRepository model.UserRepository
+	UserRepository core.UserRepository
 }
 
-func newUserUseCase(ur model.UserRepository) *UserUseCase {
+func newUserUseCase(ur core.UserRepository) *UserUseCase {
 	return &UserUseCase{
 		UserRepository: ur,
 	}
@@ -45,7 +45,7 @@ func (uc *UserUseCase) Registration(req *dto.AuthRequest) (int64, error) {
 	return userID, nil
 }
 
-func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*model.User, error) {
+func (uc *UserUseCase) LogIn(req *dto.AuthRequest) (*core.User, error) {
 
 	if err := validateAuthRequest(req); err != nil {
 		logrus.Errorf(logs.FailedToValidateUser, err)
@@ -96,7 +96,7 @@ func (uc *UserUseCase) Update(req *dto.UpdateUserRequest, userID int64) error {
 	return nil
 }
 
-func (uc *UserUseCase) GetByID(userID int64) (*model.User, error) {
+func (uc *UserUseCase) GetByID(userID int64) (*core.User, error) {
 	user, err := uc.UserRepository.GetByID(userID)
 	if err != nil {
 		return nil, handleRepositoryErrors(err)
@@ -151,12 +151,12 @@ func comparePassword(inputPassword, hashPassword string) bool {
 	return true
 }
 
-func sanitizeUserStruct(u *model.User) {
+func sanitizeUserStruct(u *core.User) {
 	u.HashPassword = ""
 }
 
-func newUser(userID int64, email, hashPassword, regDate string) *model.User {
-	return &model.User{
+func newUser(userID int64, email, hashPassword, regDate string) *core.User {
+	return &core.User{
 		UserID:       userID,
 		Email:        email,
 		HashPassword: hashPassword,
