@@ -12,10 +12,10 @@ import (
 )
 
 type UserUseCase struct {
-	UserRepository core.UserRepository
+	UserRepository UserRepository
 }
 
-func newUserUseCase(ur core.UserRepository) *UserUseCase {
+func newUserUseCase(ur UserRepository) *UserUseCase {
 	return &UserUseCase{
 		UserRepository: ur,
 	}

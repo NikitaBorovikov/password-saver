@@ -10,7 +10,7 @@ type PasswordRepository struct {
 	db *sqlx.DB
 }
 
-func NewPasswordRepository(db *sqlx.DB) core.PasswordRepository {
+func NewPasswordRepository(db *sqlx.DB) *PasswordRepository {
 	return &PasswordRepository{
 		db: db,
 	}

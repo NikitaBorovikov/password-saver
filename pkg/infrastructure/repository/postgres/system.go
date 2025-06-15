@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"password-saver/pkg/core"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -10,7 +8,7 @@ type SystemRepository struct {
 	db *sqlx.DB
 }
 
-func NewSystemRepository(db *sqlx.DB) core.SystemRepository {
+func NewSystemRepository(db *sqlx.DB) *SystemRepository {
 	return &SystemRepository{
 		db: db,
 	}

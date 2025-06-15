@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"password-saver/pkg/telegram/handlers"
+	"password-saver/pkg/infrastructure/telegram/handlers"
 	"password-saver/pkg/usecases"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"

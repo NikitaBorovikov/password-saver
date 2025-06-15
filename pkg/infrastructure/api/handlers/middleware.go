@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"password-saver/pkg/api/session"
+	"password-saver/pkg/infrastructure/api/session"
 	"password-saver/pkg/logs"
 	"time"
 

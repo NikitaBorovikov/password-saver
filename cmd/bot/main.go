@@ -3,9 +3,9 @@ package main
 import (
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
+	"password-saver/pkg/infrastructure/repository"
+	"password-saver/pkg/infrastructure/telegram"
 	"password-saver/pkg/logs"
-	"password-saver/pkg/repository"
-	"password-saver/pkg/telegram"
 	"password-saver/pkg/usecases"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -32,8 +32,8 @@ func main() {
 	}
 	bot.Debug = true
 
-	repository := repository.InitRepository(db)
-	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
+	repo := repository.InitRepository(db)
+	usecases := usecases.InitUseCases(repo.UserRepository, repo.PasswordRepository, repo.SystemRepository, &cfg.EncryptKeys)
 	tgBot := telegram.NewBot(bot, usecases)
 
 	tgBot.Start()

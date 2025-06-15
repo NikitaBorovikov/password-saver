@@ -16,11 +16,11 @@ import (
 )
 
 type PasswordUseCase struct {
-	PasswordRepository core.PasswordRepository
+	PasswordRepository PasswordRepository
 	cfg                *config.EncryptKeys
 }
 
-func newPasswordUseCase(pr core.PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
+func newPasswordUseCase(pr PasswordRepository, cfg *config.EncryptKeys) *PasswordUseCase {
 	return &PasswordUseCase{
 		PasswordRepository: pr,
 		cfg:                cfg,

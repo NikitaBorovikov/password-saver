@@ -1,16 +1,15 @@
 package repository
 
 import (
-	"password-saver/pkg/core"
-	"password-saver/pkg/repository/postgres"
+	"password-saver/pkg/infrastructure/repository/postgres"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type Repository struct {
-	UserRepository     core.UserRepository
-	PasswordRepository core.PasswordRepository
-	SystemRepository   core.SystemRepository
+	UserRepository     *postgres.UserRepository
+	PasswordRepository *postgres.PasswordRepository
+	SystemRepository   *postgres.SystemRepository
 }
 
 func InitRepository(db *sqlx.DB) *Repository {

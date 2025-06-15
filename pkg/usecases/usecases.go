@@ -2,7 +2,8 @@ package usecases
 
 import (
 	"password-saver/pkg/config"
-	"password-saver/pkg/repository"
+	"password-saver/pkg/core"
+	"password-saver/pkg/dto"
 )
 
 type UseCases struct {
@@ -11,10 +12,30 @@ type UseCases struct {
 	SystemUseCase   *SystemUseCase
 }
 
-func InitUseCases(r *repository.Repository, cfg *config.EncryptKeys) *UseCases {
+func InitUseCases(ur UserRepository, pr PasswordRepository, sr SystemRepository, cfg *config.EncryptKeys) *UseCases {
 	return &UseCases{
-		UserUseCase:     newUserUseCase(r.UserRepository),
-		PasswordUseCase: newPasswordUseCase(r.PasswordRepository, cfg),
-		SystemUseCase:   newSystemUseCase(r.SystemRepository),
+		UserUseCase:     newUserUseCase(ur),
+		PasswordUseCase: newPasswordUseCase(pr, cfg),
+		SystemUseCase:   newSystemUseCase(sr),
 	}
+}
+
+type PasswordRepository interface {
+	Save(p *core.Password) error
+	GetAll(userID int64) ([]core.Password, error)
+	GetByID(passwordID, userID int64) (*core.Password, error)
+	Update(p *core.Password) error
+	Delete(passwordID, userID int64) error
+}
+
+type UserRepository interface {
+	Registration(u *core.User) (int64, error)
+	LogIn(q *dto.AuthRequest) (*core.User, error)
+	Update(u *core.User) error
+	Delete(userID int64) error
+	GetByID(userID int64) (*core.User, error)
+}
+
+type SystemRepository interface {
+	PingDB() error
 }

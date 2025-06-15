@@ -2,33 +2,31 @@ package dto
 
 import "time"
 
-type (
-	PasswordResponse struct {
-		PasswordID int64  `json:"password_id"`
-		Service    string `json:"service"`
-		Password   string `json:"password"`
-		Login      string `json:"login"`
-	}
+type PasswordResponse struct {
+	PasswordID int64  `json:"password_id"`
+	Service    string `json:"service"`
+	Password   string `json:"password"`
+	Login      string `json:"login"`
+}
 
-	GetUserInfoResponse struct {
-		UserID int64  `json:"userID"`
-		Email  string `json:"email"`
-	}
+type GetUserInfoResponse struct {
+	UserID int64  `json:"userID"`
+	Email  string `json:"email"`
+}
 
-	OKResponse struct {
-		Data interface{} `json:"data"`
-	}
+type OKResponse struct {
+	Data interface{} `json:"data"`
+}
 
-	ErrorResponse struct {
-		Error string `json:"error"`
-	}
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
 
-	HealthCheckResponse struct {
-		Status  string    `json:"status"`
-		Details string    `json:"details"`
-		Time    time.Time `json:"time"`
-	}
-)
+type HealthCheckResponse struct {
+	Status  string    `json:"status"`
+	Details string    `json:"details"`
+	Time    time.Time `json:"time"`
+}
 
 func NewOKResponse(data interface{}) OKResponse {
 	return OKResponse{

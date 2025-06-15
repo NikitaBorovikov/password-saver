@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"net/http"
-	"password-saver/pkg/api/handlers"
-	"password-saver/pkg/api/routes"
 	"password-saver/pkg/config"
+	"password-saver/pkg/infrastructure/api/handlers"
+	"password-saver/pkg/infrastructure/api/routes"
 
 	"github.com/sirupsen/logrus"
 )

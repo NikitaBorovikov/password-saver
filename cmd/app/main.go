@@ -4,13 +4,13 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"password-saver/pkg/api/handlers"
-	"password-saver/pkg/api/server"
-	"password-saver/pkg/api/session"
 	"password-saver/pkg/config"
 	"password-saver/pkg/db"
+	"password-saver/pkg/infrastructure/api/handlers"
+	"password-saver/pkg/infrastructure/api/server"
+	"password-saver/pkg/infrastructure/api/session"
+	"password-saver/pkg/infrastructure/repository"
 	"password-saver/pkg/logs"
-	"password-saver/pkg/repository"
 	"password-saver/pkg/usecases"
 	"syscall"
 
@@ -45,8 +45,8 @@ func main() {
 
 	session := session.NewSessionManager(cfg.Http.SessionKey, cfg.Http.SessionName)
 
-	repository := repository.InitRepository(db)
-	usecases := usecases.InitUseCases(repository, &cfg.EncryptKeys)
+	repo := repository.InitRepository(db)
+	usecases := usecases.InitUseCases(repo.UserRepository, repo.PasswordRepository, repo.SystemRepository, &cfg.EncryptKeys)
 	handlers := handlers.InitHandlers(usecases, session)
 
 	srv := server.NewServer(*handlers, cfg)
