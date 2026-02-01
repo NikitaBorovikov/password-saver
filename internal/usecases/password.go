@@ -3,12 +3,12 @@ package usecases
 import (
 	"encoding/base64"
 	"fmt"
-	"password-saver/pkg/core"
-	"password-saver/pkg/infrastructure/config"
-	"password-saver/pkg/infrastructure/dto"
-	"password-saver/pkg/infrastructure/logs"
-	"password-saver/pkg/usecases/encryption"
-	"password-saver/pkg/usecases/generation"
+	"password-saver/internal/core"
+	"password-saver/internal/infrastructure/config"
+	"password-saver/internal/infrastructure/dto"
+	"password-saver/internal/infrastructure/logs"
+	"password-saver/internal/usecases/encryption"
+	"password-saver/internal/usecases/generation"
 	"sync"
 
 	"github.com/go-playground/validator"

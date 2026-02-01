@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"password-saver/pkg/infrastructure/api/session"
-	"password-saver/pkg/infrastructure/dto"
-	"password-saver/pkg/usecases"
+	"password-saver/internal/infrastructure/api/session"
+	"password-saver/internal/infrastructure/dto"
+	"password-saver/internal/usecases"
 
 	"github.com/go-chi/render"
 )

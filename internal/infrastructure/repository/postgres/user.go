@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"password-saver/pkg/core"
-	"password-saver/pkg/infrastructure/dto"
+	"password-saver/internal/core"
+	"password-saver/internal/infrastructure/dto"
 
 	"github.com/jmoiron/sqlx"
 )

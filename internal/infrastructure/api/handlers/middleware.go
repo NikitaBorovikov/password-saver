@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"password-saver/pkg/infrastructure/api/session"
-	"password-saver/pkg/infrastructure/logs"
+	"password-saver/internal/infrastructure/api/session"
+	"password-saver/internal/infrastructure/logs"
 	"time"
 
 	"github.com/go-chi/cors"

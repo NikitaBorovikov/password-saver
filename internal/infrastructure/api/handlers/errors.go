@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"password-saver/pkg/usecases"
+	"password-saver/internal/usecases"
 )
 
 var (

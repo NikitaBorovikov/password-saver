@@ -2,7 +2,7 @@ package generation
 
 import (
 	"math/rand"
-	"password-saver/pkg/infrastructure/dto"
+	"password-saver/internal/infrastructure/dto"
 )
 
 const (

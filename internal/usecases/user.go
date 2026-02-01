@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"password-saver/pkg/core"
-	"password-saver/pkg/infrastructure/dto"
-	"password-saver/pkg/infrastructure/logs"
+	"password-saver/internal/core"
+	"password-saver/internal/infrastructure/dto"
+	"password-saver/internal/infrastructure/logs"
 	"time"
 
 	"github.com/go-playground/validator"

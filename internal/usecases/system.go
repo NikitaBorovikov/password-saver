@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"password-saver/pkg/infrastructure/dto"
+	"password-saver/internal/infrastructure/dto"
 	"time"
 )
 

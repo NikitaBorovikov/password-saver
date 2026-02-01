@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"password-saver/pkg/infrastructure/repository/postgres"
+	"password-saver/internal/infrastructure/repository/postgres"
 
 	"github.com/jmoiron/sqlx"
 )

@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"password-saver/pkg/infrastructure/config"
+	"password-saver/internal/infrastructure/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"password-saver/pkg/infrastructure/dto"
-	"password-saver/pkg/infrastructure/logs"
-	"password-saver/pkg/usecases"
+	"password-saver/internal/infrastructure/dto"
+	"password-saver/internal/infrastructure/logs"
+	"password-saver/internal/usecases"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"

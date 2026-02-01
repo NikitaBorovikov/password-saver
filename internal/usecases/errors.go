@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"errors"
-	"password-saver/pkg/infrastructure/repository/postgres"
+	"password-saver/internal/infrastructure/repository/postgres"
 )
 
 var (

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"password-saver/pkg/usecases"
+	"password-saver/internal/usecases"
 
 	"github.com/sirupsen/logrus"
 )

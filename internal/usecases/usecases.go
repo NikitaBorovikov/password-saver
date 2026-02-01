@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"password-saver/pkg/core"
-	"password-saver/pkg/infrastructure/config"
-	"password-saver/pkg/infrastructure/dto"
+	"password-saver/internal/core"
+	"password-saver/internal/infrastructure/config"
+	"password-saver/internal/infrastructure/dto"
 )
 
 type UseCases struct {
