@@ -54,16 +54,16 @@ cd password-saver
 ```
 ### 2. Environment Setup
 This project uses two environment files:
-- ```.env``` - for <b>production</b>
-- ```.env.dev``` - for <b>development</b>
+- ```.prod.env``` - for <b>production</b>
+- ```.dev.env``` - for <b>development</b>
 
 Copy the template from the repository:
 ```
-cp env.example .env       # For production
-cp env.example .env.dev   # For development
+cp .env.example .prod.env      # For production
+cp .env.example .dev.env  # For development
 ```
 
-Open ```.env``` and ```.env.dev``` files and fill in the required values.
+Open ```.prod.env``` and ```.dev.env``` files and fill in the required values.
 
 ### 3. Build and run the application:
 Build the docker image:

@@ -8,7 +8,6 @@ require (
 	github.com/go-chi/httprate v0.15.0
 	github.com/go-chi/render v1.0.3
 	github.com/go-playground/validator v9.31.0+incompatible
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gorilla/sessions v1.4.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jmoiron/sqlx v1.4.0

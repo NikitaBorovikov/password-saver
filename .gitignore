@@ -1,4 +1,4 @@
-.env
-.env.dev
+.prod.env
+.dev.env
 .dockerignore
 todo
