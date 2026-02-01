@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"password-saver/internal/config"
 	"password-saver/internal/infrastructure/api/handlers"
-	"password-saver/internal/infrastructure/config"
 	"time"
 
 	"github.com/go-chi/chi/v5"

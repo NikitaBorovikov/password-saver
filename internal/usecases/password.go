@@ -3,8 +3,8 @@ package usecases
 import (
 	"encoding/base64"
 	"fmt"
+	"password-saver/internal/config"
 	"password-saver/internal/core"
-	"password-saver/internal/infrastructure/config"
 	"password-saver/internal/infrastructure/dto"
 	"password-saver/internal/infrastructure/logs"
 	"password-saver/internal/usecases/encryption"

@@ -1,8 +1,8 @@
 package usecases
 
 import (
+	"password-saver/internal/config"
 	"password-saver/internal/core"
-	"password-saver/internal/infrastructure/config"
 	"password-saver/internal/infrastructure/dto"
 )
 
